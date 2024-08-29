@@ -2,17 +2,19 @@
 using Events.Entities;
 
 
-namespace Events.Models;
+namespace Events.WebApi.Db;
 
 
 public class EventsContext : DbContext
 {
     public EventsContext(DbContextOptions<EventsContext> options)
         : base(options)
-    { }
+    {
+        DataInitializer.Seed(this);
+    }
 
-    public DbSet<Event> Events { get; } = default!;
-    public DbSet<User> Users { get; } = default!;
+    public DbSet<Event> Events { get; private set; } = default!;
+    public DbSet<User> Users { get; private set; } = default!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -22,7 +24,7 @@ public class EventsContext : DbContext
     }
 
 
-    private void ConfigureEvent(ModelBuilder modelBuilder)
+    private static void ConfigureEvent(ModelBuilder modelBuilder)
     {
         modelBuilder
             .Entity<Event>()
@@ -35,7 +37,7 @@ public class EventsContext : DbContext
            .OnDelete(DeleteBehavior.NoAction);
     }
 
-    private void ConfigureUser(ModelBuilder modelBuilder)
+    private static void ConfigureUser(ModelBuilder modelBuilder)
     {
         modelBuilder
             .Entity<User>()

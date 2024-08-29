@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Events.Entities;
-using Events.Models;
+using Events.WebApi.Db;
 
 
 namespace Events.WebApi.Controllers;

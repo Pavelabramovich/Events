@@ -1,0 +1,17 @@
+
+GET {{HostAddress}}/api/Users
+
+###
+
+POST {{HostAddress}}/api/Users
+Content-Type: application/json
+
+{
+    "name": "User0",
+    "email": "E0",
+    "surname": "S",
+    "password": "P"
+}
+
+###
+

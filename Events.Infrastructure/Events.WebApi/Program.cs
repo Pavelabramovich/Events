@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Events.Models;
+using Events.WebApi.Db;
+using Microsoft.Extensions.Options;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +28,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 app.MapControllers();
 
+
 app.Run();
+
+

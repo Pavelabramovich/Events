@@ -1,0 +1,18 @@
+
+GET {{HostAddress}}/api/Events
+
+###
+
+POST {{HostAddress}}/api/Events
+Content-Type: application/json
+
+{
+    "name": "NameTest",
+    "address": "A",
+    "description": "D",
+    "imagePath": "I",
+    "participants": []
+}
+
+###
+

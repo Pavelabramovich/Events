@@ -4,7 +4,7 @@ namespace Events.Entities;
 
 public class Event : Entity
 {
-    public string Neme { get; init; }
+    public string Name { get; init; }
     public string Description { get; init; }
     public DateTime DateTime { get; init; }
     public string Address { get; init; }
