@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Events.Entities;
 using Events.WebApi.Db;
+using Events.WebApi.Dto;
 
 
 namespace Events.WebApi.Controllers;
@@ -25,51 +26,60 @@ public class EventsController : ControllerBase
 
     // GET: api/Events
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+    public async Task<ActionResult<IEnumerable<EventWithParticipantsDto>>> GetEvents()
     {
-        return await _context.Events.ToListAsync();
+        return await _context
+            .Events
+            .Include(e => e.Users)
+            .Select(e => ToEventWithParticipantsDto(e))
+            .ToListAsync();
     }
 
     // GET: api/Events/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Event>> GetEvent(Guid id)
+    public async Task<ActionResult<EventWithoutParticipantsDto>> GetEvent(int id)
     {
         var @event = await _context.Events.FindAsync(id);
 
-        if (@event == null)
-        {
+        if (@event is null)
             return NotFound();
-        }
 
-        return @event;
+        return ToEventWithoutParticipantsDto(@event);
     }
 
     // PUT: api/Events/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutEvent(Guid id, Event @event)
+    public async Task<IActionResult> PutEvent(int id, EventWithoutParticipantsDto eventDto)
     {
-        if (id != @event.Id)
-        {
+        if (id != eventDto.Id)
             return BadRequest();
-        }
+        
+        var @event = await _context.Events.FindAsync(eventDto.Id);
 
-        _context.Entry(@event).State = EntityState.Modified;
+        if (@event is null)
+            return NotFound();
+
+        var eventToReplace = @event with
+        {
+            Name = eventDto.Name,
+            Description = eventDto.Description,
+            DateTime = eventDto.DateTime,
+            MaxPeopleCount = eventDto.MaxPeopleCount,
+            Category = eventDto.Category,
+            Address = eventDto.Address,
+            ImagePath = eventDto.ImagePath,
+        };
+
+        _context.Entry(@event).CurrentValues.SetValues(eventToReplace);
 
         try
         {
             await _context.SaveChangesAsync();
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException) when (!EventExists(id))
         {
-            if (!EventExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            return NotFound();
         }
 
         return NoContent();
@@ -78,17 +88,28 @@ public class EventsController : ControllerBase
     // POST: api/Events
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<Event>> PostEvent(Event @event)
+    public async Task<ActionResult<Event>> PostEvent(EventToAddDto eventDto)
     {
-        _context.Events.Add(@event);
+        var @event = new Event()
+        {
+            Name = eventDto.Name,
+            Description = eventDto.Description,
+            DateTime = eventDto.DateTime,
+            MaxPeopleCount = eventDto.MaxPeopleCount,
+            Category = eventDto.Category,
+            Address = eventDto.Address,
+            ImagePath = eventDto.ImagePath,
+        };
+
+        var eventEntry = _context.Events.Add(@event);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetEvent), new { id = @event.Id }, @event);
+        return CreatedAtAction(nameof(GetEvent), new { id = eventEntry.Entity.Id }, ToEventWithoutParticipantsDto(eventEntry.Entity));
     }
 
     // DELETE: api/Events/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteEvent(Guid id)
+    public async Task<IActionResult> DeleteEvent(int id)
     {
         var @event = await _context.Events.FindAsync(id);
         if (@event == null)
@@ -102,8 +123,41 @@ public class EventsController : ControllerBase
         return NoContent();
     }
 
-    private bool EventExists(Guid id)
+    private bool EventExists(int id)
     {
         return _context.Events.Any(e => e.Id == id);
     }
+
+    private static EventWithParticipantsDto ToEventWithParticipantsDto(Event @event) => new()
+    {
+        Id = @event.Id,
+        Name = @event.Name,
+        Description = @event.Description,
+        DateTime = @event.DateTime,
+        Address = @event.Address,
+        Category = @event.Category,
+        MaxPeopleCount = @event.MaxPeopleCount,
+        ImagePath = @event.ImagePath,
+        Participants = [.. @event.Participants.Select(p => ToParticipantWithoutEventDto(p))],
+    };
+
+    private static EventWithoutParticipantsDto ToEventWithoutParticipantsDto(Event @event) => new()
+    {
+        Id = @event.Id,
+        Name = @event.Name,
+        Description = @event.Description,
+        DateTime = @event.DateTime,
+        Address = @event.Address,
+        Category = @event.Category,
+        MaxPeopleCount = @event.MaxPeopleCount,
+        ImagePath = @event.ImagePath
+    };
+
+    private static ParticipantWithoutEventDto ToParticipantWithoutEventDto(Participation participation) => new()
+    {
+        UserId = participation.UserId,
+        UserName = participation.User.Name,
+        UserSurname = participation.User.Surname,
+        RegistrationTime = participation.RegistrationTime,
+    };
 }

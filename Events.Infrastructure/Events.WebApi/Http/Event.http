@@ -3,16 +3,39 @@ GET {{HostAddress}}/api/Events
 
 ###
 
+GET {{HostAddress}}/api/Events/2
+
+###
+
 POST {{HostAddress}}/api/Events
 Content-Type: application/json
 
 {
-    "name": "NameTest",
-    "address": "A",
-    "description": "D",
-    "imagePath": "I",
-    "participants": []
+    "name": "Parade",
+    "description": "Cars...",
+    "dateTime": "2024-09-01T13:25:05.159Z",
+    "address": "London",
+    "category": 2,
+    "maxPeopleCount": 100,
+    "imagePath": "porshe.jpg"
 }
 
 ###
 
+PUT {{HostAddress}}/api/Events/2
+Content-Type: application/json
+
+{
+    "id": 2,
+    "name": "Shop",
+    "description": "Long long description",
+    "dateTime": "2024-09-01T13:21:03.079Z",
+    "address": "Riga, Latvia",
+    "category": 1,
+    "maxPeopleCount": 10,
+    "imagePath": "mall.svg"
+}
+
+###
+
+DELETE {{HostAddress}}/api/Events/2

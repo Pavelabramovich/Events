@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Events.Entities;
 
 
-public class Entity
+public record Entity
 { 
-    public Guid Id { get; init; }
+    public int Id { get; init; }
 }

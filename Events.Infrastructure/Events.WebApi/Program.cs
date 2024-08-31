@@ -8,8 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<EventsContext>(o => o.UseInMemoryDatabase("TodoList"));
-
+builder.Services.AddDbContext<EventsContext>(o => o.UseInMemoryDatabase("EventsDb"));
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

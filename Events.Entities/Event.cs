@@ -2,14 +2,16 @@
 namespace Events.Entities;
 
 
-public class Event : Entity
+public record Event : Entity
 {
-    public string Name { get; init; }
-    public string Description { get; init; }
-    public DateTime DateTime { get; init; }
-    public string Address { get; init; }
-    public Category Category { get; init; }
-    public int MaxPeopleCount { get; init; }
-    public IEnumerable<User> Participants { get; init; }
-    public string ImagePath { get; init; }
+    public string Name { get; init; } = default!;
+    public string Description { get; init; } = default!;
+    public DateTime DateTime { get; init; } = default!;
+    public string Address { get; init; } = default!;
+    public Category Category { get; init; } = default!;
+    public int MaxPeopleCount { get; init; } = default!;
+    public string ImagePath { get; init; } = default!;
+
+    public IEnumerable<User> Users { get; init; } = new List<User>();
+    public ICollection<Participation> Participants { get; init; } = new List<Participation>();
 }

@@ -3,15 +3,31 @@ GET {{HostAddress}}/api/Users
 
 ###
 
+GET {{HostAddress}}/api/Users/2
+
+###
+
 POST {{HostAddress}}/api/Users
 Content-Type: application/json
 
 {
-    "name": "User0",
-    "email": "E0",
-    "surname": "S",
-    "password": "P"
+    "name": "Katya",
+    "email": "katya123@gmail.ru",
+    "surname": "Ivanova",
+    "password": "qwerty123",
+    "dateOfBirth": "2004-09-01"
 }
 
 ###
 
+PUT {{HostAddress}}/api/Users/2
+Content-Type: application/json
+
+{
+    "id": 2,
+    "name": "string"
+}
+
+###
+
+DELETE {{HostAddress}}/api/Users/2
