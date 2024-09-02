@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Events.Entities;
 using Events.WebApi.Db;
 using Events.WebApi.Dto;
+using AutoMapper;
 
 
 namespace Events.WebApi.Controllers;
@@ -13,10 +14,12 @@ namespace Events.WebApi.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly EventsContext _context;
+    private readonly IMapper _mapper;
 
-    public UsersController(EventsContext context)
+    public UsersController(EventsContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     // GET: api/Users
@@ -25,7 +28,8 @@ public class UsersController : ControllerBase
     {
         return await _context
             .Users
-            .Select(u => ToUserDto(u))
+            
+            .Select(u => _mapper.Map<UserDto>(u))
             .ToListAsync();
     }
 
@@ -40,7 +44,7 @@ public class UsersController : ControllerBase
             return NotFound();
         }
 
-        return ToUserDto(user);
+        return _mapper.Map<UserDto>(user);
     }
 
     // PUT: api/Users/5
@@ -81,21 +85,14 @@ public class UsersController : ControllerBase
     // POST: api/Users
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<UserDto>> PostUser(UserAddDto userDto)
+    public async Task<ActionResult<UserDto>> PostUser(UserCreatingDto userDto)
     {
-        User user = new()
-        {
-            Name = userDto.Name,
-            Email = userDto.Email,
-            DateOfBirth = userDto.DateOfBirth,
-            Surname = userDto.Surname,
-            Password = userDto.Password
-        };
+        User user = _mapper.Map<User>(userDto);
 
         var userEntry = _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, ToUserDto(userEntry.Entity));
+        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, _mapper.Map<UserDto>(userEntry.Entity));
     }
 
     // DELETE: api/Users/5
@@ -118,23 +115,4 @@ public class UsersController : ControllerBase
     {
         return _context.Users.Any(e => e.Id == id);
     }
-
-
-    private static ParticipantWithoutUserDto ToParticipantWithoutEventDto(Participation participation) => new()
-    {
-        EventId = participation.EventId,
-        EventName = participation.Event.Name,
-        EventDescription = participation.Event.Description,
-        RegistrationTime = participation.RegistrationTime,
-    };
-
-    private static UserDto ToUserDto(User user) => new()
-    {
-        Id = user.Id,
-        Name = user.Name,
-        DateOfBirth = user.DateOfBirth,
-        Email = user.Email,
-        Surname = user.Surname,
-        Password = user.Password,
-    };
 }

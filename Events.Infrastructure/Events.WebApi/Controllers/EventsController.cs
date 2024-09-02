@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using Events.Entities;
 using Events.WebApi.Db;
 using Events.WebApi.Dto;
+
 
 
 namespace Events.WebApi.Controllers;
@@ -18,10 +15,12 @@ namespace Events.WebApi.Controllers;
 public class EventsController : ControllerBase
 {
     private readonly EventsContext _context;
+    private readonly IMapper _mapper;
 
-    public EventsController(EventsContext context)
+    public EventsController(EventsContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     // GET: api/Events
@@ -31,7 +30,7 @@ public class EventsController : ControllerBase
         return await _context
             .Events
             .Include(e => e.Users)
-            .Select(e => ToEventWithParticipantsDto(e))
+            .Select(e => _mapper.Map<EventWithParticipantsDto>(e))
             .ToListAsync();
     }
 
@@ -44,7 +43,20 @@ public class EventsController : ControllerBase
         if (@event is null)
             return NotFound();
 
-        return ToEventWithoutParticipantsDto(@event);
+        return _mapper.Map<EventWithoutParticipantsDto>(@event);
+    }
+
+    // POST: api/Events
+    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    [HttpPost]
+    public async Task<ActionResult<Event>> PostEvent(EventCreatingDto eventDto)
+    {
+        var @event = _mapper.Map<Event>(eventDto);
+
+        var eventEntry = _context.Events.Add(@event);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetEvent), new { id = eventEntry.Entity.Id }, _mapper.Map<EventWithoutParticipantsDto>(eventEntry.Entity));
     }
 
     // PUT: api/Events/5
@@ -60,16 +72,7 @@ public class EventsController : ControllerBase
         if (@event is null)
             return NotFound();
 
-        var eventToReplace = @event with
-        {
-            Name = eventDto.Name,
-            Description = eventDto.Description,
-            DateTime = eventDto.DateTime,
-            MaxPeopleCount = eventDto.MaxPeopleCount,
-            Category = eventDto.Category,
-            Address = eventDto.Address,
-            ImagePath = eventDto.ImagePath,
-        };
+        Event eventToReplace = _mapper.Map(eventDto, @event);
 
         _context.Entry(@event).CurrentValues.SetValues(eventToReplace);
 
@@ -85,27 +88,7 @@ public class EventsController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/Events
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPost]
-    public async Task<ActionResult<Event>> PostEvent(EventToAddDto eventDto)
-    {
-        var @event = new Event()
-        {
-            Name = eventDto.Name,
-            Description = eventDto.Description,
-            DateTime = eventDto.DateTime,
-            MaxPeopleCount = eventDto.MaxPeopleCount,
-            Category = eventDto.Category,
-            Address = eventDto.Address,
-            ImagePath = eventDto.ImagePath,
-        };
-
-        var eventEntry = _context.Events.Add(@event);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetEvent), new { id = eventEntry.Entity.Id }, ToEventWithoutParticipantsDto(eventEntry.Entity));
-    }
+  
 
     // DELETE: api/Events/5
     [HttpDelete("{id}")]
@@ -127,37 +110,4 @@ public class EventsController : ControllerBase
     {
         return _context.Events.Any(e => e.Id == id);
     }
-
-    private static EventWithParticipantsDto ToEventWithParticipantsDto(Event @event) => new()
-    {
-        Id = @event.Id,
-        Name = @event.Name,
-        Description = @event.Description,
-        DateTime = @event.DateTime,
-        Address = @event.Address,
-        Category = @event.Category,
-        MaxPeopleCount = @event.MaxPeopleCount,
-        ImagePath = @event.ImagePath,
-        Participants = [.. @event.Participants.Select(p => ToParticipantWithoutEventDto(p))],
-    };
-
-    private static EventWithoutParticipantsDto ToEventWithoutParticipantsDto(Event @event) => new()
-    {
-        Id = @event.Id,
-        Name = @event.Name,
-        Description = @event.Description,
-        DateTime = @event.DateTime,
-        Address = @event.Address,
-        Category = @event.Category,
-        MaxPeopleCount = @event.MaxPeopleCount,
-        ImagePath = @event.ImagePath
-    };
-
-    private static ParticipantWithoutEventDto ToParticipantWithoutEventDto(Participation participation) => new()
-    {
-        UserId = participation.UserId,
-        UserName = participation.User.Name,
-        UserSurname = participation.User.Surname,
-        RegistrationTime = participation.RegistrationTime,
-    };
 }

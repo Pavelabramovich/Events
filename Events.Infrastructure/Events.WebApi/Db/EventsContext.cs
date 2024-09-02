@@ -33,7 +33,7 @@ public class EventsContext : DbContext
             .Entity<Event>()
             .HasKey(e => e.Id);
 
-        modelBuilder.Entity<Event>()  // post = event, tag = user
+        modelBuilder.Entity<Event>()
             .HasMany(e => e.Users)
             .WithMany(u => u.Events)
             .UsingEntity<Participation>(
@@ -41,16 +41,6 @@ public class EventsContext : DbContext
                 r => r.HasOne<Event>().WithMany(e => e.Participants).HasForeignKey(p => p.EventId).HasPrincipalKey(e => e.Id),
                 j => j.HasKey(p => new { p.UserId, p.EventId })
             );
-
-        //modelBuilder.Entity<Event>()
-        //    .HasMany(e => e.Participants)
-        //    .WithMany(e => e.Events);
-
-        //modelBuilder
-        //   .Entity<Event>()
-        //   .HasMany<User>(e => e.Participants)
-        //   .WithOne()
-        //   .OnDelete(DeleteBehavior.NoAction);
     }
 
     private static void ConfigureUser(ModelBuilder modelBuilder)
@@ -61,7 +51,6 @@ public class EventsContext : DbContext
 
         modelBuilder
             .Entity<Participation>()
-            
             .HasKey(p => p.Id);
     }
 }

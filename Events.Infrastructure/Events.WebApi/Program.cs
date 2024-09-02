@@ -1,13 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using Events.WebApi.Db;
 using Microsoft.Extensions.Options;
+using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
+    });
+
 builder.Services.AddDbContext<EventsContext>(o => o.UseInMemoryDatabase("EventsDb"));
 
 
@@ -31,5 +40,3 @@ app.MapControllers();
 
 
 app.Run();
-
-
