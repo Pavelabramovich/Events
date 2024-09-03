@@ -3,6 +3,7 @@ using Events.Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using NuGet.Packaging;
+using Events.WebApi.Authentication;
 
 
 namespace Events.WebApi.Db;
@@ -16,8 +17,10 @@ public class EventsContext : DbContext
         ChangeTracker.LazyLoadingEnabled = false;
     }
 
-    public DbSet<Event> Events { get; private set; } = default!;
-    public DbSet<User> Users { get; private set; } = default!;
+    public DbSet<Event> Events { get; private set; } 
+    public DbSet<User> Users { get; private set; }
+
+    public DbSet<UserRefreshTokens> UserRefreshToken { get; private set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

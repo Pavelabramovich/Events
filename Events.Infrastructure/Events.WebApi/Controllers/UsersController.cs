@@ -6,6 +6,8 @@ using Events.Entities;
 using Events.WebApi.Db;
 using Events.WebApi.Dto;
 using Events.WebApi.Extensions;
+using Events.WebApi.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Events.WebApi.Controllers;
@@ -17,12 +19,16 @@ public class UsersController : ControllerBase
 {
     private readonly EventsContext _context;
     private readonly IMapper _mapper;
+    private readonly IJWTManagerRepository _jWTManager;
+    private readonly IUserServiceRepository _userServiceRepository;
 
 
-    public UsersController(EventsContext context, IMapper mapper)
+    public UsersController(EventsContext context, IMapper mapper, IJWTManagerRepository jWTManager, IUserServiceRepository userServiceRepository)
     {
         _context = context;
         _mapper = mapper;
+        _jWTManager = jWTManager;
+        _userServiceRepository = userServiceRepository;
     }
 
     // GET: api/Users
@@ -112,6 +118,74 @@ public class UsersController : ControllerBase
 
         return NoContent();
     }
+
+
+    [AllowAnonymous]
+    [HttpPost]
+    [Route("authenticate-user")]
+    public async Task<IActionResult> AuthenticateAsync(UserLoginDto usersdata)
+    {
+        var validUser = await _userServiceRepository.IsValidUserAsync(usersdata);
+
+        if (!validUser)
+        {
+            return Unauthorized("Invalid username or password...");
+        }
+
+        var token = _jWTManager.GenerateToken(usersdata.Login);
+
+        if (token == null)
+        {
+            return Unauthorized("Invalid Attempt..");
+        }
+
+        UserRefreshTokens obj = new UserRefreshTokens
+        {
+            RefreshToken = token.RefreshToken,
+            UserName = usersdata.Login
+        };
+
+        _userServiceRepository.AddUserRefreshTokens(obj);
+        return Ok(token);
+    }
+
+    [AllowAnonymous]
+    [HttpPost]
+    [Route("refresh-token")]
+    public IActionResult Refresh(Tokens token)
+    {
+        var principal = _jWTManager.GetPrincipalFromExpiredToken(token.AccessToken);
+        var username = principal.Identity?.Name;
+
+        var savedRefreshToken = _userServiceRepository.GetSavedRefreshTokens(username, token.RefreshToken);
+
+        if (savedRefreshToken.RefreshToken != token.RefreshToken)
+        {
+            return Unauthorized("Invalid attempt!");
+        }
+
+        var newJwtToken = _jWTManager.GenerateRefreshToken(username);
+
+        if (newJwtToken == null)
+        {
+            return Unauthorized("Invalid attempt!");
+        }
+
+        UserRefreshTokens obj = new UserRefreshTokens
+        {
+            RefreshToken = newJwtToken.RefreshToken,
+            UserName = username
+        };
+
+        _userServiceRepository.DeleteUserRefreshTokens(username, token.RefreshToken);
+        _userServiceRepository.AddUserRefreshTokens(obj);
+
+        return Ok(newJwtToken);
+    }
+
+
+
+
 
     private bool UserExists(int id)
     {

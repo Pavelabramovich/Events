@@ -6,6 +6,7 @@ using Events.Entities;
 using Events.WebApi.Db;
 using Events.WebApi.Dto;
 using Events.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Events.WebApi.Controllers;
@@ -27,6 +28,7 @@ public class EventsController : ControllerBase
 
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<EventWithParticipantsDto>>> GetEvents()
     {
         return await _context
@@ -37,6 +39,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult<EventWithoutParticipantsDto>> GetEvent(int id)
     {
         var @event = await _context.Events.FindAsync(id);
@@ -48,6 +51,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<Event>> PostEvent(EventCreatingDto eventDto)
     {
         var @event = _mapper.Map<Event>(eventDto);

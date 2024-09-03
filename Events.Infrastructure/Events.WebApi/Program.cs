@@ -1,6 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Events.WebApi.Db;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
+using System;
+using Events.WebApi.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,20 +32,137 @@ builder.Services.AddDbContext<EventsContext>(options =>
 });
 
 
+
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => 
+    {
+        options.Password.RequireUppercase = true;
+        options.Password.RequireDigit = true;
+        options.SignIn.RequireConfirmedEmail = true;
+    })
+    .AddEntityFrameworkStores<EventsContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(x => 
+    {
+        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(o => {
+        var Key = Encoding.UTF8.GetBytes(configuration["JWT:Key"]);
+        o.SaveToken = true;
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = configuration["JWT:Issuer"],
+            ValidAudience = configuration["JWT:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Key),
+            ClockSkew = TimeSpan.Zero
+        };
+
+});
+
+builder.Services.AddSingleton<IJWTManagerRepository, JWTManagerRepository>();
+builder.Services.AddScoped<IUserServiceRepository, UserServiceRepository>();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+
+
+
+
+
+
+
+// builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "JWTToken_Auth_API",
+        Version = "v1"
+    });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+
+
+
+
+
+app.UseRouting();
+
+app.UseAuthentication(); // add before UseAuthorization() 
+app.UseAuthorization();
+
+
+
+
 
 app.UseAuthorization();
 app.MapControllers();
