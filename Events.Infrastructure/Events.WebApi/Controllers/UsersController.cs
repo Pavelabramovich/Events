@@ -1,20 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Events.Entities;
 using Events.WebApi.Db;
 using Events.WebApi.Dto;
-using AutoMapper;
+using Events.WebApi.Extensions;
 
 
 namespace Events.WebApi.Controllers;
 
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
     private readonly EventsContext _context;
     private readonly IMapper _mapper;
+
 
     public UsersController(EventsContext context, IMapper mapper)
     {
@@ -28,8 +31,7 @@ public class UsersController : ControllerBase
     {
         return await _context
             .Users
-            
-            .Select(u => _mapper.Map<UserDto>(u))
+            .ProjectTo<UserDto>(_mapper)
             .ToListAsync();
     }
 

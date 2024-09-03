@@ -1,12 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Events.WebApi.Db;
-using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
+var configuration = builder.Configuration;
+configuration.AddJsonFile("secrets.json");
+
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -17,7 +19,10 @@ builder.Services
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
     });
 
-builder.Services.AddDbContext<EventsContext>(o => o.UseInMemoryDatabase("EventsDb"));
+builder.Services.AddDbContext<EventsContext>(options =>
+{
+    options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+});
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

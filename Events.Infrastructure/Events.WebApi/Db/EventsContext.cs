@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Events.Entities;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using NuGet.Packaging;
 
 
 namespace Events.WebApi.Db;
@@ -12,8 +14,6 @@ public class EventsContext : DbContext
         : base(options)
     {
         ChangeTracker.LazyLoadingEnabled = false;
-
-        DataInitializer.Seed(this);
     }
 
     public DbSet<Event> Events { get; private set; } = default!;
@@ -24,6 +24,8 @@ public class EventsContext : DbContext
     {
         ConfigureEvent(modelBuilder);
         ConfigureUser(modelBuilder);
+
+        SeedDefaultData(modelBuilder);
     }
 
 
@@ -37,9 +39,9 @@ public class EventsContext : DbContext
             .HasMany(e => e.Users)
             .WithMany(u => u.Events)
             .UsingEntity<Participation>(
-                l => l.HasOne<User>().WithMany(u => u.Participants).HasForeignKey(p => p.UserId).HasPrincipalKey(u => u.Id),
-                r => r.HasOne<Event>().WithMany(e => e.Participants).HasForeignKey(p => p.EventId).HasPrincipalKey(e => e.Id),
-                j => j.HasKey(p => new { p.UserId, p.EventId })
+                l => l.HasOne(p => p.User).WithMany(u => u.Participants).HasForeignKey(p => p.UserId),
+                r => r.HasOne(p => p.Event).WithMany(e => e.Participants).HasForeignKey(p => p.EventId),
+                j => j.HasKey(p => p.Id)
             );
     }
 
@@ -52,5 +54,60 @@ public class EventsContext : DbContext
         modelBuilder
             .Entity<Participation>()
             .HasKey(p => p.Id);
+    }
+
+    private static void SeedDefaultData(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Event>().HasData(
+        [
+            new()
+            {
+                Id = 1,
+                Name = "Concert",
+                Category = Category.Concert,
+                DateTime = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
+                MaxPeopleCount = 4,
+                Address = "Minsk 123",
+                Description = "Top level concert",
+                ImagePath = "concert.png",
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Allowed meeting",
+                Category = Category.Meeting,
+                DateTime = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
+                MaxPeopleCount = 10,
+                Address = "Mos cow, 12",
+                Description = "description ...",
+                ImagePath = "meeting.png",
+            },
+            new()
+            {
+                Id = 3,
+                Name = "Fair with tail",
+                Category = Category.Fair,
+                DateTime = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
+                Address = "Paris, Sena",
+                MaxPeopleCount = 9,
+                Description = "Frogs?",
+                ImagePath = "paris.jpg",
+            }
+        ]);
+
+        modelBuilder.Entity<User>().HasData(
+        [
+            new() { Id = 1, Name = "Pasha", Email = "lol@gmail.com", Password = "Pass123", Surname = "First" },
+            new() { Id = 2, Name = "Petia", Email = "crol@mail.ru", Password = "Vass123", Surname = "Second" },
+            new() { Id = 3, Name = "Vova", Email = "esc@gmama.help", Password = "Kiss123", Surname = "Third" }
+        ]);
+
+        modelBuilder.Entity<Participation>().HasData(
+        [
+            new() { Id = 1, EventId = 1, UserId = 1 },
+            new() { Id = 2, EventId = 1, UserId = 2 },
+
+            new() { Id = 3, EventId = 2, UserId = 3 }
+        ]);
     }
 }
