@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.WebApi.Migrations
 {
     [DbContext(typeof(EventsContext))]
-    [Migration("20240903213646_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240904153607_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,6 +61,41 @@ namespace Events.WebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Events");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Minsk 123",
+                            Category = 0,
+                            DateTime = new DateTime(2024, 9, 4, 18, 36, 5, 688, DateTimeKind.Utc).AddTicks(5794),
+                            Description = "Top level concert",
+                            ImagePath = "concert.png",
+                            MaxPeopleCount = 4,
+                            Name = "Concert"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "Mos cow, 12",
+                            Category = 1,
+                            DateTime = new DateTime(2024, 9, 4, 18, 36, 5, 688, DateTimeKind.Utc).AddTicks(5823),
+                            Description = "description ...",
+                            ImagePath = "meeting.png",
+                            MaxPeopleCount = 10,
+                            Name = "Allowed meeting"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Address = "Paris, Sena",
+                            Category = 2,
+                            DateTime = new DateTime(2024, 9, 4, 18, 36, 5, 688, DateTimeKind.Utc).AddTicks(5827),
+                            Description = "Frogs?",
+                            ImagePath = "paris.jpg",
+                            MaxPeopleCount = 9,
+                            Name = "Fair with tail"
+                        });
                 });
 
             modelBuilder.Entity("Events.Entities.Participation", b =>
@@ -87,6 +122,29 @@ namespace Events.WebApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Participation");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            EventId = 1,
+                            RegistrationTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            EventId = 1,
+                            RegistrationTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            EventId = 2,
+                            RegistrationTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 3
+                        });
                 });
 
             modelBuilder.Entity("Events.Entities.User", b =>
@@ -119,6 +177,35 @@ namespace Events.WebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DateOfBirth = new DateOnly(1, 1, 1),
+                            Email = "lol@gmail.com",
+                            Name = "Pasha",
+                            Password = "Pass123",
+                            Surname = "First"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DateOfBirth = new DateOnly(1, 1, 1),
+                            Email = "crol@mail.ru",
+                            Name = "Petia",
+                            Password = "Vass123",
+                            Surname = "Second"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DateOfBirth = new DateOnly(1, 1, 1),
+                            Email = "esc@gmama.help",
+                            Name = "Vova",
+                            Password = "Kiss123",
+                            Surname = "Third"
+                        });
                 });
 
             modelBuilder.Entity("Events.WebApi.Authentication.UserRefreshTokens", b =>

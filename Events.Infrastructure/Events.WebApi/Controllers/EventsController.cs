@@ -51,7 +51,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize]
+    [Authorize("Admin")]
     public async Task<ActionResult<Event>> PostEvent(EventCreatingDto eventDto)
     {
         var @event = _mapper.Map<Event>(eventDto);

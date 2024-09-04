@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.WebApi.Migrations
 {
     [DbContext(typeof(EventsContext))]
-    [Migration("20240903215542_AddDefaultDataMigration")]
-    partial class AddDefaultDataMigration
+    [Migration("20240904194707_ChangeUserTypeMigration")]
+    partial class ChangeUserTypeMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -68,7 +68,7 @@ namespace Events.WebApi.Migrations
                             Id = 1,
                             Address = "Minsk 123",
                             Category = 0,
-                            DateTime = new DateTime(2024, 9, 4, 0, 55, 41, 732, DateTimeKind.Utc).AddTicks(6102),
+                            DateTime = new DateTime(2024, 9, 4, 22, 47, 6, 565, DateTimeKind.Utc).AddTicks(5841),
                             Description = "Top level concert",
                             ImagePath = "concert.png",
                             MaxPeopleCount = 4,
@@ -79,7 +79,7 @@ namespace Events.WebApi.Migrations
                             Id = 2,
                             Address = "Mos cow, 12",
                             Category = 1,
-                            DateTime = new DateTime(2024, 9, 4, 0, 55, 41, 732, DateTimeKind.Utc).AddTicks(6126),
+                            DateTime = new DateTime(2024, 9, 4, 22, 47, 6, 565, DateTimeKind.Utc).AddTicks(5884),
                             Description = "description ...",
                             ImagePath = "meeting.png",
                             MaxPeopleCount = 10,
@@ -90,7 +90,7 @@ namespace Events.WebApi.Migrations
                             Id = 3,
                             Address = "Paris, Sena",
                             Category = 2,
-                            DateTime = new DateTime(2024, 9, 4, 0, 55, 41, 732, DateTimeKind.Utc).AddTicks(6129),
+                            DateTime = new DateTime(2024, 9, 4, 22, 47, 6, 565, DateTimeKind.Utc).AddTicks(5886),
                             Description = "Frogs?",
                             ImagePath = "paris.jpg",
                             MaxPeopleCount = 9,
@@ -155,23 +155,57 @@ namespace Events.WebApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("text");
+
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NormalizedUserName")
                         .HasColumnType("text");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
                     b.Property<string>("Surname")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -182,29 +216,47 @@ namespace Events.WebApi.Migrations
                         new
                         {
                             Id = 1,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "fc26995a-50ce-49d8-9605-f34bb5561502",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "lol@gmail.com",
-                            Name = "Pasha",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
                             Password = "Pass123",
-                            Surname = "First"
+                            PhoneNumberConfirmed = false,
+                            Surname = "First",
+                            TwoFactorEnabled = false,
+                            UserName = "Pasha"
                         },
                         new
                         {
                             Id = 2,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "e80d49b3-5b11-408c-8cb4-d07bcded3b26",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "crol@mail.ru",
-                            Name = "Petia",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
                             Password = "Vass123",
-                            Surname = "Second"
+                            PhoneNumberConfirmed = false,
+                            Surname = "Second",
+                            TwoFactorEnabled = false,
+                            UserName = "Petia"
                         },
                         new
                         {
                             Id = 3,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "3d09abac-efa3-4203-be1d-230534d852ea",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "esc@gmama.help",
-                            Name = "Vova",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
                             Password = "Kiss123",
-                            Surname = "Third"
+                            PhoneNumberConfirmed = false,
+                            Surname = "Third",
+                            TwoFactorEnabled = false,
+                            UserName = "Vova"
                         });
                 });
 

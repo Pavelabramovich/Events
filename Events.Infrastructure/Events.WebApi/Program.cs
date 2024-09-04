@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,19 +39,23 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     {
         options.Password.RequireUppercase = true;
         options.Password.RequireDigit = true;
-        options.SignIn.RequireConfirmedEmail = true;
+
+      //  options.SignIn.RequireConfirmedEmail = true;
     })
     .AddEntityFrameworkStores<EventsContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddAuthentication(x => 
+builder.Services.AddAuthentication(options =>   // задаёт схему аутентификации по умолчанию
     {
-        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    }).AddJwtBearer(o => {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>  // настройка аутентификации на основе JWT
+    {
         var Key = Encoding.UTF8.GetBytes(configuration["JWT:Key"]);
-        o.SaveToken = true;
-        o.TokenValidationParameters = new TokenValidationParameters
+
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = false,
             ValidateAudience = false,
@@ -61,23 +66,21 @@ builder.Services.AddAuthentication(x =>
             IssuerSigningKey = new SymmetricSecurityKey(Key),
             ClockSkew = TimeSpan.Zero
         };
+    });
 
+
+
+builder.Services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.AddRequirements(new RoleRequirement("Admin")));
 });
+
+
 
 builder.Services.AddSingleton<IJWTManagerRepository, JWTManagerRepository>();
 builder.Services.AddScoped<IUserServiceRepository, UserServiceRepository>();
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -101,40 +104,38 @@ builder.Services.AddEndpointsApiExplorer();
 
 // builder.Services.AddSwaggerGen();
 
-builder.Services.AddSwaggerGen(c => {
-    c.SwaggerDoc("v1", new OpenApiInfo
+builder.Services.AddSwaggerGen(setup => 
+{
+    setup.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "JWTToken_Auth_API",
+        Title = "Events API",
         Version = "v1"
     });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    setup.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n" + 
+                      "Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n" + 
+                      "Example: \"Bearer 1safsfsdfdfd\"",
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-        {
-            new OpenApiSecurityScheme {
-                Reference = new OpenApiReference {
+    setup.AddSecurityRequirement(new OpenApiSecurityRequirement() 
+    {
+        [
+            new OpenApiSecurityScheme()
+            {
+                Reference = new OpenApiReference() 
+                {
                     Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
+                    Id = "Bearer"
                 }
-            },
-            new string[] {}
-        }
+            }
+        ] = []
     });
 });
-
-
-
-
-
-
-
 
 
 

@@ -8,6 +8,7 @@ using Events.WebApi.Dto;
 using Events.WebApi.Extensions;
 using Events.WebApi.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 
 namespace Events.WebApi.Controllers;
@@ -68,13 +69,7 @@ public class UsersController : ControllerBase
         if (user is null)
             return NotFound();
 
-        var userToReplace = user with
-        {
-            Name = userDto.Name,
-            Surname = userDto.Surname,
-            DateOfBirth = userDto.DateOfBirth,
-            Email = userDto.Email,
-        };
+        var userToReplace = _mapper.Map<UserDto, User>(userDto, user);
 
         _context.Entry(user).CurrentValues.SetValues(userToReplace);
 
@@ -128,11 +123,16 @@ public class UsersController : ControllerBase
         var validUser = await _userServiceRepository.IsValidUserAsync(usersdata);
 
         if (!validUser)
-        {
             return Unauthorized("Invalid username or password...");
-        }
 
-        var token = _jWTManager.GenerateToken(usersdata.Login);
+
+        var user = _context.Users.First(u => u.Email == usersdata.Login);
+        int userId = user.Id;
+
+        var claims = _context.UserClaims.Where(c => c.UserId == userId);
+
+
+        var token = _jWTManager.GenerateToken(usersdata.Login, claims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToArray());
 
         if (token == null)
         {
@@ -156,6 +156,7 @@ public class UsersController : ControllerBase
     {
         var principal = _jWTManager.GetPrincipalFromExpiredToken(token.AccessToken);
         var username = principal.Identity?.Name;
+        var claims = principal.Claims;
 
         var savedRefreshToken = _userServiceRepository.GetSavedRefreshTokens(username, token.RefreshToken);
 
@@ -164,7 +165,7 @@ public class UsersController : ControllerBase
             return Unauthorized("Invalid attempt!");
         }
 
-        var newJwtToken = _jWTManager.GenerateRefreshToken(username);
+        var newJwtToken = _jWTManager.GenerateRefreshToken(username, claims.ToArray());
 
         if (newJwtToken == null)
         {

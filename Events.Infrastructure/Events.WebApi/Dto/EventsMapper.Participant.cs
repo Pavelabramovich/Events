@@ -21,7 +21,7 @@ public partial class EventsMapperProfile : AutoMapper.Profile
             )
             .ForMember(
                 dest => dest.UserName,
-                opt => opt.MapFrom(src => src.User.Name)
+                opt => opt.MapFrom(src => src.User.UserName)
             )
             .ForMember(
                 dest => dest.UserSurname,

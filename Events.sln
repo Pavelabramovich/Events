@@ -5,9 +5,11 @@ VisualStudioVersion = 17.11.35219.272
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.WebApi", "Events.Infrastructure\Events.WebApi\Events.WebApi.csproj", "{C7E45CC3-9FA1-4192-9E48-5C4F680CD85C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.Entities", "Events.Entities\Events.Entities.csproj", "{3073974A-2BE4-472D-9177-56901781DB55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.Domain", "Events.Entities\Events.Domain.csproj", "{3073974A-2BE4-472D-9177-56901781DB55}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Events.Infrastructure", "Events.Infrastructure", "{FB95E4A8-BC5D-465A-B44E-93CAF1A2CFEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events.DataBase", "Events.Infrastructure\Events.DataBase\Events.DataBase.csproj", "{661E3686-6359-4209-BC86-E0FE9CC099BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +25,17 @@ Global
 		{3073974A-2BE4-472D-9177-56901781DB55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3073974A-2BE4-472D-9177-56901781DB55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3073974A-2BE4-472D-9177-56901781DB55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{661E3686-6359-4209-BC86-E0FE9CC099BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{661E3686-6359-4209-BC86-E0FE9CC099BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{661E3686-6359-4209-BC86-E0FE9CC099BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{661E3686-6359-4209-BC86-E0FE9CC099BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C7E45CC3-9FA1-4192-9E48-5C4F680CD85C} = {FB95E4A8-BC5D-465A-B44E-93CAF1A2CFEC}
+		{661E3686-6359-4209-BC86-E0FE9CC099BC} = {FB95E4A8-BC5D-465A-B44E-93CAF1A2CFEC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DC767B4F-4B36-4ABB-B467-C50AC7819AAC}

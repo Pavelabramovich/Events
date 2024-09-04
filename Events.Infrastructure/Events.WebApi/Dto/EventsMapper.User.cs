@@ -20,6 +20,6 @@ public partial class EventsMapperProfile : AutoMapper.Profile
 
     private void Create_User_To_UserDto_Map()
     {
-        CreateMap<User, UserDto>();
+        CreateMap<User, UserDto>().ReverseMap();
     }
 }

@@ -2,8 +2,9 @@
 using Events.Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using NuGet.Packaging;
 using Events.WebApi.Authentication;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 
 namespace Events.WebApi.Db;
@@ -18,7 +19,12 @@ public class EventsContext : DbContext
     }
 
     public DbSet<Event> Events { get; private set; } 
+
     public DbSet<User> Users { get; private set; }
+    public DbSet<IdentityUserClaim<int>> UserClaims { get; private set; }
+
+
+  //  public DbSet<Role> Roles { get; private set; }
 
     public DbSet<UserRefreshTokens> UserRefreshToken { get; private set; }
 
@@ -57,6 +63,30 @@ public class EventsContext : DbContext
         modelBuilder
             .Entity<Participation>()
             .HasKey(p => p.Id);
+
+
+        modelBuilder
+            .Entity<IdentityUserClaim<int>>()
+            .HasKey(c => c.Id);
+
+        modelBuilder
+            .Entity<IdentityUserClaim<int>>()
+            .ToTable("UserClaims");
+
+        //modelBuilder
+        //    .Entity<Role>()
+        //    .HasKey(r => r.Id);
+
+        //modelBuilder
+        //    .Entity<Role>()
+        //    .HasMany(r => r.Users)
+        //    .WithMany(u => u.Roles)
+        //    .UsingEntity(j => j.HasData(
+        //    [
+        //        new { UserId = 1, RoleId = 1 },
+        //        new { UserId = 2, RoleId = 2 },
+        //        new { UserId = 1, RoleId = 1 },
+        //    ]));
     }
 
     private static void SeedDefaultData(ModelBuilder modelBuilder)
@@ -100,10 +130,18 @@ public class EventsContext : DbContext
 
         modelBuilder.Entity<User>().HasData(
         [
-            new() { Id = 1, Name = "Pasha", Email = "lol@gmail.com", Password = "Pass123", Surname = "First" },
-            new() { Id = 2, Name = "Petia", Email = "crol@mail.ru", Password = "Vass123", Surname = "Second" },
-            new() { Id = 3, Name = "Vova", Email = "esc@gmama.help", Password = "Kiss123", Surname = "Third" }
+            new() { Id = 1, UserName = "Pasha", Email = "lol@gmail.com", Password = "Pass123", Surname = "First" },
+            new() { Id = 2, UserName = "Petia", Email = "crol@mail.ru", Password = "Vass123", Surname = "Second" },
+            new() { Id = 3, UserName = "Vova", Email = "esc@gmama.help", Password = "Kiss123", Surname = "Third" }
         ]);
+
+        modelBuilder.Entity<IdentityUserClaim<int>>().HasData(new IdentityUserClaim<int>
+        {
+            Id = 1,
+            UserId = 1,
+            ClaimType = ClaimTypes.Role,
+            ClaimValue = "Admin"
+        });
 
         modelBuilder.Entity<Participation>().HasData(
         [

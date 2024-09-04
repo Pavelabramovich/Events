@@ -9,6 +9,5 @@ public partial class EventsMapperProfile : AutoMapper.Profile
         CreateEventMap();
         CreateParticipantMap();
         CreateUserMap();
-
     }
 }

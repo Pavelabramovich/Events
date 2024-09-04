@@ -3,6 +3,7 @@ using System;
 using Events.WebApi.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.WebApi.Migrations
 {
     [DbContext(typeof(EventsContext))]
-    partial class EventsContextModelSnapshot : ModelSnapshot
+    [Migration("20240904201014_AddUserClaimMigration")]
+    partial class AddUserClaimMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,7 +68,7 @@ namespace Events.WebApi.Migrations
                             Id = 1,
                             Address = "Minsk 123",
                             Category = 0,
-                            DateTime = new DateTime(2024, 9, 4, 23, 22, 50, 316, DateTimeKind.Utc).AddTicks(4931),
+                            DateTime = new DateTime(2024, 9, 4, 23, 10, 14, 57, DateTimeKind.Utc).AddTicks(795),
                             Description = "Top level concert",
                             ImagePath = "concert.png",
                             MaxPeopleCount = 4,
@@ -76,7 +79,7 @@ namespace Events.WebApi.Migrations
                             Id = 2,
                             Address = "Mos cow, 12",
                             Category = 1,
-                            DateTime = new DateTime(2024, 9, 4, 23, 22, 50, 316, DateTimeKind.Utc).AddTicks(4951),
+                            DateTime = new DateTime(2024, 9, 4, 23, 10, 14, 57, DateTimeKind.Utc).AddTicks(813),
                             Description = "description ...",
                             ImagePath = "meeting.png",
                             MaxPeopleCount = 10,
@@ -87,7 +90,7 @@ namespace Events.WebApi.Migrations
                             Id = 3,
                             Address = "Paris, Sena",
                             Category = 2,
-                            DateTime = new DateTime(2024, 9, 4, 23, 22, 50, 316, DateTimeKind.Utc).AddTicks(4953),
+                            DateTime = new DateTime(2024, 9, 4, 23, 10, 14, 57, DateTimeKind.Utc).AddTicks(816),
                             Description = "Frogs?",
                             ImagePath = "paris.jpg",
                             MaxPeopleCount = 9,
@@ -214,7 +217,7 @@ namespace Events.WebApi.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0f2b24cf-e4e7-4c17-ad7e-6dd7215371cb",
+                            ConcurrencyStamp = "22e07d6f-72ef-4a44-aecb-723c21b51ddb",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "lol@gmail.com",
                             EmailConfirmed = false,
@@ -229,7 +232,7 @@ namespace Events.WebApi.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5de984a4-c7aa-4475-9e2d-2626c566b565",
+                            ConcurrencyStamp = "5d7218e2-bad6-44f8-8dac-079f4af008ea",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "crol@mail.ru",
                             EmailConfirmed = false,
@@ -244,7 +247,7 @@ namespace Events.WebApi.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "faf83382-280a-4edc-839e-f8362101dd65",
+                            ConcurrencyStamp = "54af3307-6611-42f4-88db-f8c4c9572c46",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "esc@gmama.help",
                             EmailConfirmed = false,
@@ -300,13 +303,13 @@ namespace Events.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserClaims", (string)null);
+                    b.ToTable("IdentityUserClaim<int>");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            ClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                            ClaimType = "role",
                             ClaimValue = "Admin",
                             UserId = 1
                         });
