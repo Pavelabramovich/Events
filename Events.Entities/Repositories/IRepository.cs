@@ -1,26 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Events.Domain.Entities;
 
 
-namespace Events.Entities;
+namespace Events.Domain.Repositories;
 
 
-public interface IRepository<TEntity, TKey> where TEntity : IEntity<TKey>
+public interface IRepository<TEntity> where TEntity : IEntity
 {
-    IEnumerable<TEntity> GetAll();
-    Task<IEnumerable<TEntity>> GetAllAsync();
-    Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);
+    List<TEntity> GetAll();
+    Task<List<TEntity>> GetAllAsync();
+    Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken);
 
-    IEnumerable<TEntity> PageAll(int skip, int take);
-    Task<IEnumerable<TEntity>> PageAllAsync(int skip, int take);
-    Task<IEnumerable<TEntity>> PageAllAsync(int skip, int take, CancellationToken cancellationToken);
+    List<TEntity> PageAll(int skip, int take);
+    Task<List<TEntity>> PageAllAsync(int skip, int take);
+    Task<List<TEntity>> PageAllAsync(int skip, int take, CancellationToken cancellationToken);
 
-    TEntity FindById(TKey id);
-    Task<TEntity> FindByIdAsync(TKey id);
-    Task<TEntity> FindByIdAsync(TKey id, CancellationToken cancellationToken);
+    TEntity? FindById(object id);
+    Task<TEntity?> FindByIdAsync(object id);
+    Task<TEntity?> FindByIdAsync(object id, CancellationToken cancellationToken);
 
     void Add(TEntity entity);
     void Update(TEntity entity);

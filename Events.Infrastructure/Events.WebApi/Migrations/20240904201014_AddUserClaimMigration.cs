@@ -50,7 +50,7 @@ namespace Events.WebApi.Migrations
 
             migrationBuilder.InsertData(
                 table: "IdentityUserClaim<int>",
-                columns: new[] { "Id", "ClaimType", "ClaimValue", "UserId" },
+                columns: new[] { "Id", "Type", "Value", "UserId" },
                 values: new object[] { 1, "role", "Admin", 1 });
 
             migrationBuilder.UpdateData(

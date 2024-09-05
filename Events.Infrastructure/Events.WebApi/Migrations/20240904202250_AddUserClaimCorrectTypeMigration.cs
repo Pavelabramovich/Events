@@ -49,7 +49,7 @@ namespace Events.WebApi.Migrations
                 table: "UserClaims",
                 keyColumn: "Id",
                 keyValue: 1,
-                column: "ClaimType",
+                column: "Type",
                 value: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
 
             migrationBuilder.UpdateData(
@@ -115,7 +115,7 @@ namespace Events.WebApi.Migrations
                 table: "IdentityUserClaim<int>",
                 keyColumn: "Id",
                 keyValue: 1,
-                column: "ClaimType",
+                column: "Type",
                 value: "role");
 
             migrationBuilder.UpdateData(

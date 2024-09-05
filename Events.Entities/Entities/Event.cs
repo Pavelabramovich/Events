@@ -1,5 +1,5 @@
 ﻿
-namespace Events.Entities;
+namespace Events.Domain.Entities;
 
 
 public record Event : Entity

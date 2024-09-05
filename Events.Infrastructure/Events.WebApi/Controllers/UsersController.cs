@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Events.Entities;
+using Events.Domain_Entities;
 using Events.WebApi.Db;
 using Events.WebApi.Dto;
 using Events.WebApi.Extensions;

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Events.Entities;
+using Events.Domain_Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Events.WebApi.Authentication;

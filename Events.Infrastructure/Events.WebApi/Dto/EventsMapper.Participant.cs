@@ -1,4 +1,4 @@
-﻿using Events.Entities;
+﻿using Events.Domain_Entities;
 
 
 namespace Events.WebApi.Dto;

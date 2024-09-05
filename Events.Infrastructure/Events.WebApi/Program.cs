@@ -29,7 +29,9 @@ builder.Services
 
 builder.Services.AddDbContext<EventsContext>(options =>
 {
-    options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+    var b = options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+
+    DbContextOptions<EventsContext> o = b.Options;
 });
 
 

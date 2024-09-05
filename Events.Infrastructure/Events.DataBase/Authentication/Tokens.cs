@@ -1,5 +1,4 @@
 ﻿using Events.Domain.Entities;
-using System.ComponentModel.DataAnnotations;
 
 
 namespace Events.WebApi.Authentication;
@@ -12,10 +11,4 @@ public class RefreshToken
 
     public string Value { get; init; } = default!;
     public DateTime Expires { get; init; } = default!;
-}
-
-public class Tokens
-{
-    public string AccessToken { get; set; } = default!;
-    public string RefreshToken { get; set; } = default!;
 }

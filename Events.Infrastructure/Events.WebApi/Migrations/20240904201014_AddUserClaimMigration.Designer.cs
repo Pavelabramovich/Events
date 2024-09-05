@@ -25,7 +25,7 @@ namespace Events.WebApi.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Events.Entities.Event", b =>
+            modelBuilder.Entity("Events.Domain_Entities.Event", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -98,7 +98,7 @@ namespace Events.WebApi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Events.Entities.Participation", b =>
+            modelBuilder.Entity("Events.Domain_Entities.Participation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -147,7 +147,7 @@ namespace Events.WebApi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Events.Entities.User", b =>
+            modelBuilder.Entity("Events.Domain_Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -292,10 +292,10 @@ namespace Events.WebApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ClaimType")
+                    b.Property<string>("Type")
                         .HasColumnType("text");
 
-                    b.Property<string>("ClaimValue")
+                    b.Property<string>("Value")
                         .HasColumnType("text");
 
                     b.Property<int>("UserId")
@@ -315,15 +315,15 @@ namespace Events.WebApi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Events.Entities.Participation", b =>
+            modelBuilder.Entity("Events.Domain_Entities.Participation", b =>
                 {
-                    b.HasOne("Events.Entities.Event", "Event")
+                    b.HasOne("Events.Domain_Entities.Event", "Event")
                         .WithMany("Participants")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Events.Entities.User", "User")
+                    b.HasOne("Events.Domain_Entities.User", "User")
                         .WithMany("Participants")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -334,12 +334,12 @@ namespace Events.WebApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Events.Entities.Event", b =>
+            modelBuilder.Entity("Events.Domain_Entities.Event", b =>
                 {
                     b.Navigation("Participants");
                 });
 
-            modelBuilder.Entity("Events.Entities.User", b =>
+            modelBuilder.Entity("Events.Domain_Entities.User", b =>
                 {
                     b.Navigation("Participants");
                 });

@@ -1,10 +1,12 @@
-﻿
-namespace Events.Entities;
+﻿using Events.Domain.Entities;
 
 
-public interface IRoleRepository : IRepository<Role, string>
+namespace Events.Domain.Repositories;
+
+
+public interface IRoleRepository : IRepository<Role>
 {
-    Role FindByName(string name);
-    Task<Role> FindByNameAsync(string name);
-    Task<Role> FindByNameAsync(string name, CancellationToken cancellationToken);
+    Role? FindByName(string name);
+    Task<Role?> FindByNameAsync(string name);
+    Task<Role?> FindByNameAsync(string name, CancellationToken cancellationToken);
 }
