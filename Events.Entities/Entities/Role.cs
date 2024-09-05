@@ -8,10 +8,7 @@ using System.Threading.Tasks;
 namespace Events.Entities;
 
 
-//public class Role
-//{
-//    public int Id { get; set; } = default!;
-//    public string Name { get; set; } = default!;
-
-//    public ICollection<User> Users { get; } = [];
-//}
+public record Role : UniqueNameEntity
+{
+    public ICollection<User> Users { get; init; } = new List<User>();
+}

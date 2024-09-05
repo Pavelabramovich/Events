@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 namespace Events.Entities;
 
 
-//public interface IUnitOfWork : IDisposable
-//{
-//  //  IExternalLoginRepository ExternalLoginRepository { get; }
-//    IRoleRepository RoleRepository { get; }
-//    IUserRepository UserRepository { get; }
- 
-//    int SaveChanges();
-//    Task<int> SaveChangesAsync();
-//    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
-//}
+public interface IUnitOfWork : IDisposable
+{
+    IUserRepository UserRepository { get; }
+    IExternalLoginRepository ExternalLoginRepository { get; }
+    IRoleRepository RoleRepository { get; }
+
+    int SaveChanges();
+    Task<int> SaveChangesAsync();
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+}
