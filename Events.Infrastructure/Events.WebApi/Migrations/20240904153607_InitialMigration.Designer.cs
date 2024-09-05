@@ -208,7 +208,7 @@ namespace Events.WebApi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Events.WebApi.Authentication.UserRefreshTokens", b =>
+            modelBuilder.Entity("Events.WebApi.Authentication.Value", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -219,7 +219,7 @@ namespace Events.WebApi.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("RefreshToken")
+                    b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -229,7 +229,7 @@ namespace Events.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserRefreshToken");
+                    b.ToTable("Value");
                 });
 
             modelBuilder.Entity("Events.Entities.Participation", b =>

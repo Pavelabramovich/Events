@@ -65,7 +65,7 @@ namespace Events.WebApi.Migrations
                             Id = 1,
                             Address = "Minsk 123",
                             Category = 0,
-                            DateTime = new DateTime(2024, 9, 4, 23, 22, 50, 316, DateTimeKind.Utc).AddTicks(4931),
+                            DateTime = new DateTime(2024, 9, 5, 11, 16, 1, 578, DateTimeKind.Utc).AddTicks(2144),
                             Description = "Top level concert",
                             ImagePath = "concert.png",
                             MaxPeopleCount = 4,
@@ -76,7 +76,7 @@ namespace Events.WebApi.Migrations
                             Id = 2,
                             Address = "Mos cow, 12",
                             Category = 1,
-                            DateTime = new DateTime(2024, 9, 4, 23, 22, 50, 316, DateTimeKind.Utc).AddTicks(4951),
+                            DateTime = new DateTime(2024, 9, 5, 11, 16, 1, 578, DateTimeKind.Utc).AddTicks(2167),
                             Description = "description ...",
                             ImagePath = "meeting.png",
                             MaxPeopleCount = 10,
@@ -87,7 +87,7 @@ namespace Events.WebApi.Migrations
                             Id = 3,
                             Address = "Paris, Sena",
                             Category = 2,
-                            DateTime = new DateTime(2024, 9, 4, 23, 22, 50, 316, DateTimeKind.Utc).AddTicks(4953),
+                            DateTime = new DateTime(2024, 9, 5, 11, 16, 1, 578, DateTimeKind.Utc).AddTicks(2169),
                             Description = "Frogs?",
                             ImagePath = "paris.jpg",
                             MaxPeopleCount = 9,
@@ -214,7 +214,7 @@ namespace Events.WebApi.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0f2b24cf-e4e7-4c17-ad7e-6dd7215371cb",
+                            ConcurrencyStamp = "1e5d0b08-9eab-4688-9686-9a7179dacc2f",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "lol@gmail.com",
                             EmailConfirmed = false,
@@ -229,7 +229,7 @@ namespace Events.WebApi.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5de984a4-c7aa-4475-9e2d-2626c566b565",
+                            ConcurrencyStamp = "c585c906-5ce8-4897-b0ec-e5311a603c08",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "crol@mail.ru",
                             EmailConfirmed = false,
@@ -244,7 +244,7 @@ namespace Events.WebApi.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "faf83382-280a-4edc-839e-f8362101dd65",
+                            ConcurrencyStamp = "fb5d0b63-4d55-465e-89cc-622944fe5bc8",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "esc@gmama.help",
                             EmailConfirmed = false,
@@ -257,26 +257,19 @@ namespace Events.WebApi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Events.WebApi.Authentication.UserRefreshTokens", b =>
+            modelBuilder.Entity("Events.WebApi.Authentication.RefreshToken", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("RefreshToken")
+                    b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("UserRefreshToken");
                 });
@@ -327,6 +320,17 @@ namespace Events.WebApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Events.WebApi.Authentication.RefreshToken", b =>
+                {
+                    b.HasOne("Events.Entities.User", "User")
+                        .WithOne()
+                        .HasForeignKey("Events.WebApi.Authentication.RefreshToken", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

@@ -1,21 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Events.Entities;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace Events.WebApi.Authentication;
 
 
-public class UserRefreshTokens
+public class RefreshToken
 {
-    [Key]
-    public int Id { get; set; }
+    public int UserId { get; init; } = default!;
+    public User User { get; init; } = default!;
 
-    [Required]
-    public string UserName { get; set; } = default!;
-
-    [Required]
-    public string RefreshToken { get; set; } = default!;
-
-    public bool IsActive { get; set; } = true;
+    public string Value { get; init; } = default!;
+    public DateTime Expires { get; init; } = default!;
 }
 
 public class Tokens

@@ -127,59 +127,62 @@ public class UsersController : ControllerBase
 
 
         var user = _context.Users.First(u => u.Email == usersdata.Login);
-        int userId = user.Id;
-
-        var claims = _context.UserClaims.Where(c => c.UserId == userId);
+        var claims = _context.UserClaims.Where(c => c.UserId == user.Id);
 
 
-        var token = _jWTManager.GenerateToken(usersdata.Login, claims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToArray());
+        var tokens = _jWTManager.GenerateToken(usersdata.Login, claims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToArray());
 
-        if (token == null)
+        if (tokens == null)
         {
             return Unauthorized("Invalid Attempt..");
         }
 
-        UserRefreshTokens obj = new UserRefreshTokens
-        {
-            RefreshToken = token.RefreshToken,
-            UserName = usersdata.Login
+        var refreshToken = new RefreshToken
+        { 
+            UserId = user.Id,
+            Value = tokens.RefreshToken,
+            Expires = DateTime.UtcNow.AddDays(30)
         };
 
-        _userServiceRepository.AddUserRefreshTokens(obj);
-        return Ok(token);
+        _userServiceRepository.UpsertUserRefreshToken(refreshToken);
+        return Ok(tokens);
     }
 
     [AllowAnonymous]
     [HttpPost]
     [Route("refresh-token")]
-    public IActionResult Refresh(Tokens token)
+    public IActionResult Refresh(Tokens tokens)
     {
-        var principal = _jWTManager.GetPrincipalFromExpiredToken(token.AccessToken);
-        var username = principal.Identity?.Name;
+        var principal = _jWTManager.GetPrincipalFromExpiredToken(tokens.AccessToken);
+        var email = principal.Identity?.Name;
         var claims = principal.Claims;
 
-        var savedRefreshToken = _userServiceRepository.GetSavedRefreshTokens(username, token.RefreshToken);
+        var savedRefreshToken = _userServiceRepository.GetSavedRefreshToken(email, tokens.RefreshToken);
 
-        if (savedRefreshToken.RefreshToken != token.RefreshToken)
+        if (savedRefreshToken is not null && savedRefreshToken.Value != tokens.RefreshToken)
         {
             return Unauthorized("Invalid attempt!");
         }
 
-        var newJwtToken = _jWTManager.GenerateRefreshToken(username, claims.ToArray());
+        var newJwtToken = _jWTManager.GenerateRefreshToken(email, claims.ToArray());
 
         if (newJwtToken == null)
         {
             return Unauthorized("Invalid attempt!");
         }
 
-        UserRefreshTokens obj = new UserRefreshTokens
-        {
-            RefreshToken = newJwtToken.RefreshToken,
-            UserName = username
+
+        int userId = _context.Users.First(u => u.Email == email).Id;
+
+
+        var newRefreshToken = new RefreshToken
+        { 
+            UserId = userId,
+            Value = newJwtToken.RefreshToken,
+            Expires = DateTime.UtcNow.AddDays(30)
         };
 
-        _userServiceRepository.DeleteUserRefreshTokens(username, token.RefreshToken);
-        _userServiceRepository.AddUserRefreshTokens(obj);
+        _userServiceRepository.UpsertUserRefreshToken(newRefreshToken);
 
         return Ok(newJwtToken);
     }

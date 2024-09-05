@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.WebApi.Migrations
 {
     [DbContext(typeof(EventsContext))]
-    [Migration("20240904194707_ChangeUserTypeMigration")]
-    partial class ChangeUserTypeMigration
+    [Migration("20240905081602_AddExpiresToRefreshTokenMigration")]
+    partial class AddExpiresToRefreshTokenMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -68,7 +68,7 @@ namespace Events.WebApi.Migrations
                             Id = 1,
                             Address = "Minsk 123",
                             Category = 0,
-                            DateTime = new DateTime(2024, 9, 4, 22, 47, 6, 565, DateTimeKind.Utc).AddTicks(5841),
+                            DateTime = new DateTime(2024, 9, 5, 11, 16, 1, 578, DateTimeKind.Utc).AddTicks(2144),
                             Description = "Top level concert",
                             ImagePath = "concert.png",
                             MaxPeopleCount = 4,
@@ -79,7 +79,7 @@ namespace Events.WebApi.Migrations
                             Id = 2,
                             Address = "Mos cow, 12",
                             Category = 1,
-                            DateTime = new DateTime(2024, 9, 4, 22, 47, 6, 565, DateTimeKind.Utc).AddTicks(5884),
+                            DateTime = new DateTime(2024, 9, 5, 11, 16, 1, 578, DateTimeKind.Utc).AddTicks(2167),
                             Description = "description ...",
                             ImagePath = "meeting.png",
                             MaxPeopleCount = 10,
@@ -90,7 +90,7 @@ namespace Events.WebApi.Migrations
                             Id = 3,
                             Address = "Paris, Sena",
                             Category = 2,
-                            DateTime = new DateTime(2024, 9, 4, 22, 47, 6, 565, DateTimeKind.Utc).AddTicks(5886),
+                            DateTime = new DateTime(2024, 9, 5, 11, 16, 1, 578, DateTimeKind.Utc).AddTicks(2169),
                             Description = "Frogs?",
                             ImagePath = "paris.jpg",
                             MaxPeopleCount = 9,
@@ -217,7 +217,7 @@ namespace Events.WebApi.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "fc26995a-50ce-49d8-9605-f34bb5561502",
+                            ConcurrencyStamp = "1e5d0b08-9eab-4688-9686-9a7179dacc2f",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "lol@gmail.com",
                             EmailConfirmed = false,
@@ -232,7 +232,7 @@ namespace Events.WebApi.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e80d49b3-5b11-408c-8cb4-d07bcded3b26",
+                            ConcurrencyStamp = "c585c906-5ce8-4897-b0ec-e5311a603c08",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "crol@mail.ru",
                             EmailConfirmed = false,
@@ -247,7 +247,7 @@ namespace Events.WebApi.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "3d09abac-efa3-4203-be1d-230534d852ea",
+                            ConcurrencyStamp = "fb5d0b63-4d55-465e-89cc-622944fe5bc8",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             Email = "esc@gmama.help",
                             EmailConfirmed = false,
@@ -260,7 +260,24 @@ namespace Events.WebApi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Events.WebApi.Authentication.Value", b =>
+            modelBuilder.Entity("Events.WebApi.Authentication.RefreshToken", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserRefreshToken");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -268,20 +285,27 @@ namespace Events.WebApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
+                    b.Property<string>("ClaimType")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
+                    b.Property<string>("ClaimValue")
                         .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Value");
+                    b.ToTable("UserClaims", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                            ClaimValue = "Admin",
+                            UserId = 1
+                        });
                 });
 
             modelBuilder.Entity("Events.Entities.Participation", b =>
@@ -299,6 +323,17 @@ namespace Events.WebApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Events.WebApi.Authentication.RefreshToken", b =>
+                {
+                    b.HasOne("Events.Entities.User", "User")
+                        .WithOne()
+                        .HasForeignKey("Events.WebApi.Authentication.RefreshToken", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

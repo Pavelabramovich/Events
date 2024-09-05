@@ -8,8 +8,8 @@ public interface IUserServiceRepository
 {
     Task<bool> IsValidUserAsync(UserLoginDto users);
 
-    UserRefreshTokens AddUserRefreshTokens(UserRefreshTokens user);
-    UserRefreshTokens GetSavedRefreshTokens(string username, string refreshtoken);
+    RefreshToken UpsertUserRefreshToken(RefreshToken user);
+    RefreshToken GetSavedRefreshToken(string username, string refreshtoken);
 
-    void DeleteUserRefreshTokens(string username, string refreshToken);
+    void DeleteUserRefreshToken(string username, string refreshToken);
 }

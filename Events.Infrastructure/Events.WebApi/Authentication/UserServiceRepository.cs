@@ -1,6 +1,7 @@
 ﻿using Events.WebApi.Db;
 using Microsoft.AspNetCore.Identity;
 using Events.WebApi.Dto;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Events.WebApi.Authentication;
@@ -8,42 +9,45 @@ namespace Events.WebApi.Authentication;
 
 public class UserServiceRepository : IUserServiceRepository
 {
-    private readonly EventsContext _db;
+    private readonly EventsContext _context;
 
 
-    public UserServiceRepository(UserManager<IdentityUser> userManager, EventsContext db)
+    public UserServiceRepository(UserManager<IdentityUser> userManager, EventsContext context)
     {
-        this._db = db;
+        _context = context;
     }
 
-    public UserRefreshTokens AddUserRefreshTokens(UserRefreshTokens user)
+    public RefreshToken UpsertUserRefreshToken(RefreshToken user)
     {
-        _db.UserRefreshToken.Add(user);
-        _db.SaveChanges();
+        _context.UserRefreshToken.Upsert(user).Run();
+        _context.SaveChanges();
+
         return user;
     }
 
-    public void DeleteUserRefreshTokens(string username, string refreshToken)
+    public void DeleteUserRefreshToken(string email, string refreshToken)
     {
-        var item = _db.UserRefreshToken.FirstOrDefault(x => x.UserName == username && x.RefreshToken == refreshToken);
-        if (item != null)
+        int userId = _context.Users.First(u => u.Email == email).Id;
+
+        var item = _context.UserRefreshToken.FirstOrDefault(t => t.UserId == userId && t.Value == refreshToken);
+
+        if (item is not null)
         {
-            _db.UserRefreshToken.Remove(item);
+            _context.UserRefreshToken.Remove(item);
         }
     }
 
-    public UserRefreshTokens GetSavedRefreshTokens(string username, string refreshToken)
+    public RefreshToken GetSavedRefreshToken(string email, string refreshToken)
     {
-        return _db.UserRefreshToken.FirstOrDefault(x => x.UserName == username && x.RefreshToken == refreshToken && x.IsActive == true);
+        var userId = _context.Users.First(u => u.Email == email).Id;
+
+        return _context.UserRefreshToken.FirstOrDefault(t => t.UserId == userId && t.Expires >= DateTime.UtcNow);
     }
 
     public async Task<bool> IsValidUserAsync(UserLoginDto users)
     {
-        var u = _db.Users.FirstOrDefault(o => o.Email == users.Login && o.Password == users.Password);
+        var u = _context.Users.FirstOrDefault(o => o.Email == users.Login && o.Password == users.Password);
 
-        if (u != null)
-            return true;
-        else
-            return false;
+        return u is not null;
     }
 }

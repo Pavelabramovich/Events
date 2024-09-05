@@ -34,7 +34,7 @@ namespace Events.WebApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRefreshToken",
+                name: "Value",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -140,7 +140,7 @@ namespace Events.WebApi.Migrations
                 name: "Participation");
 
             migrationBuilder.DropTable(
-                name: "UserRefreshToken");
+                name: "Value");
 
             migrationBuilder.DropTable(
                 name: "Events");

@@ -26,7 +26,7 @@ public class EventsContext : DbContext
 
   //  public DbSet<Role> Roles { get; private set; }
 
-    public DbSet<UserRefreshTokens> UserRefreshToken { get; private set; }
+    public DbSet<RefreshToken> UserRefreshToken { get; private set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -72,6 +72,24 @@ public class EventsContext : DbContext
         modelBuilder
             .Entity<IdentityUserClaim<int>>()
             .ToTable("UserClaims");
+
+
+        modelBuilder
+            .Entity<RefreshToken>()
+            .HasKey(t => t.UserId);
+
+        modelBuilder 
+            .Entity<RefreshToken>()
+            .Property(t => t.UserId)
+            .IsRequired()
+            .ValueGeneratedNever();
+
+        modelBuilder
+            .Entity<RefreshToken>()
+            .HasOne(t => t.User)
+            .WithOne()
+            .HasForeignKey<RefreshToken>(t => t.UserId);
+           // .OnDelete(DeleteBehavior.Cascade);
 
         //modelBuilder
         //    .Entity<Role>()
