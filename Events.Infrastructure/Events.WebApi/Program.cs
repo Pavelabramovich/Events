@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Events.WebApi.Db;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -9,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authorization;
+using Events.Domain;
+using Events.DataBase;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,25 +28,25 @@ builder.Services
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
     });
 
-builder.Services.AddDbContext<EventsContext>(options =>
-{
-    var b = options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+//builder.Services.AddDbContext<EventsContext>(options =>
+//{
+//    options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+//});
 
-    DbContextOptions<EventsContext> o = b.Options;
-});
-
-
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => 
-    {
-        options.Password.RequireUppercase = true;
-        options.Password.RequireDigit = true;
 
-      //  options.SignIn.RequireConfirmedEmail = true;
-    })
-    .AddEntityFrameworkStores<EventsContext>()
-    .AddDefaultTokenProviders();
+
+//builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+//    {
+//        options.Password.RequireUppercase = true;
+//        options.Password.RequireDigit = true;
+
+//        //  options.SignIn.RequireConfirmedEmail = true;
+//    })
+//    .AddEntityFrameworkStores<EventsContext>()
+//    .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>   // задаёт схему аутентификации по умолчанию
     {
@@ -82,7 +83,7 @@ builder.Services.AddAuthorization(options =>
 
 
 builder.Services.AddSingleton<IJWTManagerRepository, JWTManagerRepository>();
-builder.Services.AddScoped<IUserServiceRepository, UserServiceRepository>();
+//builder.Services.AddScoped<IUserServiceRepository, UserServiceRepository>();
 
 
 
@@ -106,7 +107,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 // builder.Services.AddSwaggerGen();
 
-builder.Services.AddSwaggerGen(setup => 
+builder.Services.AddSwaggerGen(setup =>
 {
     setup.SwaggerDoc("v1", new OpenApiInfo
     {
@@ -120,16 +121,16 @@ builder.Services.AddSwaggerGen(setup =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n" + 
-                      "Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n" + 
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n" +
+                      "Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n" +
                       "Example: \"Bearer 1safsfsdfdfd\"",
     });
-    setup.AddSecurityRequirement(new OpenApiSecurityRequirement() 
+    setup.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
         [
             new OpenApiSecurityScheme()
             {
-                Reference = new OpenApiReference() 
+                Reference = new OpenApiReference()
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"

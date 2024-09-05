@@ -59,7 +59,14 @@ internal class EventConfiguration : IEntityTypeConfiguration<Event>
             .UsingEntity<Participation>(
                 r => r.HasOne(p => p.User).WithMany(u => u.Participants).HasForeignKey(p => p.UserId),
                 l => l.HasOne(p => p.Event).WithMany(e => e.Participants).HasForeignKey(p => p.EventId),
-                j => j.HasKey(p => p.Id)
+                j =>
+                {
+                    j.ToTable("participations");
+                    j.HasKey(p => p.Id);
+                    j.Property(p => p.EventId).HasColumnName("event_id");
+                    j.Property(p => p.UserId).HasColumnName("user_id");
+                    j.Property(p => p.RegistrationTime).HasColumnName("registration_time");
+                }
             );
     }
 }

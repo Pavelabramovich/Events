@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 
 namespace Events.DataBase;
@@ -22,21 +23,17 @@ public class UnitOfWork : IUnitOfWork
     private IRoleRepository? _roleRepository;
     
 
+    public UnitOfWork()
+        : this(options => options.UseNpgsql("Server=localhost;Port=5432;User Id=postgres;Password=NotSqlite;Database=events;Include Error Detail = true;"))
+    { }
 
-    public UnitOfWork(Action<DbContextOptionsBuilder>? configureAction = null)
+    private UnitOfWork(Action<DbContextOptionsBuilder> configureAction)
     {
-        if (configureAction is null)
-        {
-            _context = new EventsContext();
-        }
-        else
-        {
-            var builder = new DbContextOptionsBuilder<EventsContext>();
-            configureAction(builder);
-            DbContextOptions<EventsContext> options = builder.Options;
+        var builder = new DbContextOptionsBuilder<EventsContext>();
+        configureAction(builder);
+        DbContextOptions<EventsContext> options = builder.Options;
 
-            _context = new EventsContext(options);
-        }
+        _context = new EventsContext(options);
 
         _eventRepository = null;
         _userRepository = null;

@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Events.Domain_Entities;
+using Events.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 

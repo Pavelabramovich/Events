@@ -25,9 +25,14 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             .IsOptional();
 
         builder
+            .Property(u => u.Surname)
+            .HasColumnName("surname")
+            .IsOptional();
+
+        builder
             .Property(u => u.DateOfBirth)
             .HasColumnName("date_of_birth")
-            .IsOptional();
+            .IsRequired();
 
         builder
             .Property(u => u.Login)
@@ -45,8 +50,24 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             .IsOptional();
 
         builder
+            .HasMany(u => u.ExternalLogins)
+            .WithOne(l => l.User)
+            .HasForeignKey(l => l.UserId);
+
+        builder
             .HasMany(u => u.Roles)
-            .WithMany(r => r.Users);
+            .WithMany(r => r.Users)
+            .UsingEntity(
+                "UserRole",
+                r => r.HasOne(typeof(User)).WithMany().HasForeignKey("UserId"),
+                l => l.HasOne(typeof(Role)).WithMany().HasForeignKey("RoleName"),
+                j =>
+                {
+                    j.ToTable("user_roles");
+                    j.Property("RoleName").HasColumnName("role_name");
+                    j.Property("UserId").HasColumnName("user_id");
+                }
+            );
 
         builder
             .HasMany(u => u.Claims)
@@ -54,17 +75,19 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(c => c.UserId);
 
         builder
-            .HasMany(u => u.ExternalLogins)
-            .WithOne(l => l.User)
-            .HasForeignKey(l => l.UserId);
-
-        builder
             .HasMany(u => u.Events)
             .WithMany(e => e.Users)
             .UsingEntity<Participation>(
                 r => r.HasOne(p => p.Event).WithMany(e => e.Participants).HasForeignKey(p => p.EventId),
                 l => l.HasOne(p => p.User).WithMany(u => u.Participants).HasForeignKey(p => p.UserId),
-                j => j.HasKey(p => p.Id)
+                j =>
+                {
+                    j.ToTable("participations");
+                    j.HasKey(p => p.Id);
+                    j.Property(p => p.UserId).HasColumnName("user_id");
+                    j.Property(p => p.EventId).HasColumnName("event_id");
+                    j.Property(p => p.RegistrationTime).HasColumnName("registration_time");
+                }
             );
     }
 }
