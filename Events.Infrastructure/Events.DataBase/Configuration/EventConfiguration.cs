@@ -21,11 +21,17 @@ internal class EventConfiguration : IEntityTypeConfiguration<Event>
         builder
             .Property(e => e.Name)
             .HasColumnName("name")
+            .HasMaxLength(32)
             .IsOptional();
+
+        builder
+            .HasIndex(e => e.Name)
+            .IsUnique();
 
         builder
             .Property(e => e.Description)
             .HasColumnName("description")
+            .HasMaxLength(1024)
             .IsOptional();
 
         builder
@@ -36,6 +42,7 @@ internal class EventConfiguration : IEntityTypeConfiguration<Event>
         builder
             .Property(e => e.Address)
             .HasColumnName("address")
+            .HasMaxLength(128)
             .IsOptional();
 
         builder

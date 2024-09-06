@@ -1,198 +1,204 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using AutoMapper;
-//using AutoMapper.QueryableExtensions;
-//using Events.Domain_Entities;
-//using Events.WebApi.Db;
-//using Events.WebApi.Dto;
-//using Events.WebApi.Extensions;
-//using Events.WebApi.Authentication;
-//using Microsoft.AspNetCore.Authorization;
-//using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using Events.WebApi.Dto;
+using Events.WebApi.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Events.DataBase;
+using Events.Domain.Entities;
+
+using DomainClaim = Events.Domain.Entities.Claim;
+using SystemClaim = System.Security.Claims.Claim;
 
 
-//namespace Events.WebApi.Controllers;
+namespace Events.WebApi.Controllers;
 
 
-//[ApiController]
-//[Route("api/[controller]")]
-//public class UsersController : ControllerBase
-//{
-//    private readonly EventsContext _context;
-//    private readonly IMapper _mapper;
-//    private readonly IJWTManagerRepository _jWTManager;
-//    private readonly IUserServiceRepository _userServiceRepository;
+[ApiController]
+[Route("api/users")]
+public class UsersController : ControllerBase
+{
+    private readonly IUnitOfWorkWithTokens _unitOfWork;
+    private readonly IJwtManagerRepository _jwtManager;
+    private readonly IMapper _mapper;
 
 
-//    public UsersController(EventsContext context, IMapper mapper, IJWTManagerRepository jWTManager, IUserServiceRepository userServiceRepository)
-//    {
-//        _context = context;
-//        _mapper = mapper;
-//        _jWTManager = jWTManager;
-//        _userServiceRepository = userServiceRepository;
-//    }
+    public UsersController(IUnitOfWorkWithTokens unitOfWorkWithTokens, IMapper mapper, IJwtManagerRepository jwtManager)
+    {
+        _unitOfWork = unitOfWorkWithTokens;
+        _mapper = mapper;
+        _jwtManager = jwtManager;
+    }
 
-//    // GET: api/Users
-//    [HttpGet]
-//    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
-//    {
-//        return await _context
-//            .Users
-//            .ProjectTo<UserDto>(_mapper)
-//            .ToListAsync();
-//    }
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<UserWithoutParticipantsDto>>> GetUsers()
+    {
+        var users = await _unitOfWork.UserRepository.GetAllAsync().ToListAsync();
 
-//    // GET: api/Users/5
-//    [HttpGet("{id}")]
-//    public async Task<ActionResult<UserDto>> GetUser(int id)
-//    {
-//        var user = await _context.Users.FindAsync(id);
+        return Ok(users.Select(u => _mapper.Map<UserWithoutParticipantsDto>(u)));
+    }
 
-//        if (user == null)
-//        {
-//            return NotFound();
-//        }
+    [HttpGet("participants")]
+    public async Task<ActionResult<IEnumerable<UserWithParticipantsDto>>> GetUsersWithParticipants()
+    {
+        var users = await _unitOfWork.UserRepository.GetAllWithParticipationsAsync().ToListAsync();
 
-//        return _mapper.Map<UserDto>(user);
-//    }
+        return Ok(users.Select(u => _mapper.Map<UserWithParticipantsDto>(u)));
+    }
 
-//    // PUT: api/Users/5
-//    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-//    [HttpPut("{id}")]
-//    public async Task<IActionResult> PutUser(int id, UserDto userDto)
-//    {
-//        if (id != userDto.Id)
-//            return BadRequest();
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserWithoutParticipantsDto>> GetUser(int id)
+    {
+        var user = await _unitOfWork.UserRepository.FindByIdAsync(id);
 
-//        var user = await _context.Users.FindAsync(id);
+        if (user is null)
+            return NotFound();
+        
+        return _mapper.Map<UserWithoutParticipantsDto>(user);
+    }
 
-//        if (user is null)
-//            return NotFound();
+    [HttpGet("{id}/participants")]
+    public async Task<ActionResult<IEnumerable<UserWithParticipantsDto>>> GetUserParticipants(int id)
+    {
+        var participants = await _unitOfWork.UserRepository.GetUserEventsAsync(id).ToArrayAsync();
 
-//        var userToReplace = _mapper.Map<UserDto, User>(userDto, user);
+        return Ok(participants.Select(p => _mapper.Map<ParticipantWithoutUserDto>(p)));
+    }
 
-//        _context.Entry(user).CurrentValues.SetValues(userToReplace);
+    [HttpGet("page/{pageNum}-of-{pageSize}")]
+    public async Task<ActionResult<IEnumerable<UserWithoutParticipantsDto>>> GetUsersPage(int pageNum, int pageSize)
+    {
+        int skip = pageNum * pageSize;
+        int take = pageSize;
 
-//        try
-//        {
-//            await _context.SaveChangesAsync();
-//        }
-//        catch (DbUpdateConcurrencyException) when (!UserExists(id))
-//        {
-//            return NotFound();
-//        }
+        var events = await _unitOfWork.UserRepository.PageAllAsync(skip, take).ToArrayAsync();
 
-//        return NoContent();
-//    }
-
-//    // POST: api/Users
-//    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-//    [HttpPost]
-//    public async Task<ActionResult<UserDto>> PostUser(UserCreatingDto userDto)
-//    {
-//        User user = _mapper.Map<User>(userDto);
-
-//        var userEntry = _context.Users.Add(user);
-//        await _context.SaveChangesAsync();
-
-//        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, _mapper.Map<UserDto>(userEntry.Entity));
-//    }
-
-//    // DELETE: api/Users/5
-//    [HttpDelete("{id}")]
-//    public async Task<IActionResult> DeleteUser(int id)
-//    {
-//        var user = await _context.Users.FindAsync(id);
-//        if (user == null)
-//        {
-//            return NotFound();
-//        }
-
-//        _context.Users.Remove(user);
-//        await _context.SaveChangesAsync();
-
-//        return NoContent();
-//    }
+        return Ok(events.Select(u => _mapper.Map<UserWithoutParticipantsDto>(u)));
+    }
 
 
-//    [AllowAnonymous]
-//    [HttpPost]
-//    [Route("authenticate-user")]
-//    public async Task<IActionResult> AuthenticateAsync(UserLoginDto usersdata)
-//    {
-//        var validUser = await _userServiceRepository.IsValidUserAsync(usersdata);
+    [HttpPost]
+    public async Task<ActionResult<UserWithParticipantsDto>> PostUser(UserCreatingDto userDto)
+    {
+        User user = _mapper.Map<User>(userDto);
 
-//        if (!validUser)
-//            return Unauthorized("Invalid username or password...");
+        _unitOfWork.UserRepository.Add(user);
+        await _unitOfWork.SaveChangesAsync();
 
+        var newUser = _unitOfWork.UserRepository.FindByName(userDto.Name)!;
 
-//        var user = _context.Users.First(u => u.Email == usersdata.Login);
-//        var claims = _context.UserClaims.Where(c => c.UserId == user.Id);
+        return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, _mapper.Map<EventWithoutParticipantsDto>(user with { Id = newUser.Id }));
+    }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutUser(int id, UserWithoutParticipantsDto userDto)
+    {
+        if (id != userDto.Id)
+            return BadRequest();
 
-//        var tokens = _jWTManager.GenerateToken(usersdata.Login, claims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToArray());
+        var user = await _unitOfWork.UserRepository.FindByIdAsync(userDto.Id);
 
-//        if (tokens == null)
-//        {
-//            return Unauthorized("Invalid Attempt..");
-//        }
+        if (user is null)
+            return NotFound();
 
-//        var refreshToken = new RefreshToken
-//        { 
-//            UserId = user.Id,
-//            Value = tokens.RefreshToken,
-//            Expires = DateTime.UtcNow.AddDays(30)
-//        };
+        var userToReplace = _mapper.Map<UserWithoutParticipantsDto, User>(userDto, user);
 
-//        _userServiceRepository.UpsertUserRefreshToken(refreshToken);
-//        return Ok(tokens);
-//    }
+        _unitOfWork.UserRepository.Update(userToReplace);
 
-//    [AllowAnonymous]
-//    [HttpPost]
-//    [Route("refresh-token")]
-//    public IActionResult Refresh(Tokens tokens)
-//    {
-//        var principal = _jWTManager.GetPrincipalFromExpiredToken(tokens.AccessToken);
-//        var email = principal.Identity?.Name;
-//        var claims = principal.Claims;
+        if (!await _unitOfWork.SaveChangesAsync())
+            return BadRequest();
 
-//        var savedRefreshToken = _userServiceRepository.GetSavedRefreshToken(email, tokens.RefreshToken);
+        return NoContent();
+    }
 
-//        if (savedRefreshToken is not null && savedRefreshToken.Value != tokens.RefreshToken)
-//        {
-//            return Unauthorized("Invalid attempt!");
-//        }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _unitOfWork.UserRepository.FindByIdAsync(id);
 
-//        var newJwtToken = _jWTManager.GenerateRefreshToken(email, claims.ToArray());
+        if (user is null)
+            return NotFound();
 
-//        if (newJwtToken == null)
-//        {
-//            return Unauthorized("Invalid attempt!");
-//        }
+        _unitOfWork.UserRepository.Remove(id);
+
+        if (!await _unitOfWork.SaveChangesAsync())
+            return BadRequest();
+
+        return NoContent();
+    }
 
 
-//        int userId = _context.Users.First(u => u.Email == email).Id;
+    [HttpPost("authenticate-user")]
+    public async Task<IActionResult> AuthenticateAsync(UserLoginDto userLoginDto)
+    {
+        bool isUserValid = await _unitOfWork.UserRepository.AuthenticateAsync(userLoginDto.Login, userLoginDto.HashedPassword);
 
+        if (!isUserValid)
+            return Unauthorized("Invalid username or password...");
 
-//        var newRefreshToken = new RefreshToken
-//        { 
-//            UserId = userId,
-//            Value = newJwtToken.RefreshToken,
-//            Expires = DateTime.UtcNow.AddDays(30)
-//        };
+        var user = await _unitOfWork.UserRepository.FindByLoginAsync(userLoginDto.Login);
 
-//        _userServiceRepository.UpsertUserRefreshToken(newRefreshToken);
+        var userRoles = await _unitOfWork.RoleRepository.GetUserRolesAsync(user!.Id).ToArrayAsync();
+        var userClaims = await _unitOfWork.ClaimRepository.GetUserClaimsAsync(user!.Id).ToArrayAsync();
 
-//        return Ok(newJwtToken);
-//    }
+        var claimsFromRoles = userRoles.Select(r => new SystemClaim(ClaimTypes.Role, r.Name));
+        var claimsFromClaims = userClaims.Select(c => new SystemClaim(c.Type, c.Value));
 
+        SystemClaim[] claims = [.. claimsFromRoles, .. claimsFromClaims];
 
+        var tokens = _jwtManager.GenerateToken(user.Id, claims);
 
+        if (tokens is null)
+            return Unauthorized("Invalid Attempt..");
 
+        var refreshToken = new RefreshToken
+        {
+            UserId = user.Id,
+            Value = tokens.RefreshToken,
+            Expires = DateTime.UtcNow.AddDays(30)
+        };
 
-//    private bool UserExists(int id)
-//    {
-//        return _context.Users.Any(e => e.Id == id);
-//    }
-//}
+        _unitOfWork.RefreshTokenRepository.UpsertUserRefreshToken(refreshToken);
+
+        if (!await _unitOfWork.SaveChangesAsync())
+            return BadRequest();
+
+        return Ok(tokens);
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> Refresh(Tokens tokens)
+    {
+        var principal = _jwtManager.GetPrincipalFromExpiredToken(tokens.AccessToken);
+
+        var claims = principal.Claims;
+
+        var userIdClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!;
+        int userId = int.Parse(userIdClaim.Value);
+
+        var savedRefreshToken = await _unitOfWork.RefreshTokenRepository.GetSavedRefreshTokedAsync(userId, tokens.RefreshToken);
+
+        if (savedRefreshToken is not null && savedRefreshToken.Value != tokens.RefreshToken)
+            return Unauthorized("Invalid attempt!");
+        
+        var newTokens = _jwtManager.GenerateRefreshToken(userId, claims.ToArray());
+
+        if (newTokens is null)
+            return Unauthorized("Invalid attempt!");
+        
+        var newRefreshToken = new RefreshToken
+        {
+            UserId = userId,
+            Value = newTokens.RefreshToken,
+            Expires = DateTime.UtcNow.AddDays(30)
+        };
+
+        _unitOfWork.RefreshTokenRepository.UpsertUserRefreshToken(newRefreshToken);
+
+        if (!await _unitOfWork.SaveChangesAsync())
+            return BadRequest();
+
+        return Ok(newTokens);
+    }
+}

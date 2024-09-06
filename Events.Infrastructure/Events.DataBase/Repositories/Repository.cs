@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,35 +24,31 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
     protected DbSet<TEntity> Set => _context.Set<TEntity>();
 
 
-    public List<TEntity> GetAll()
+    public IEnumerable<TEntity> GetAll()
     {
-        return Set.ToList();
+        return Set.AsNoTracking().ToArray();
     }
 
-    public Task<List<TEntity>> GetAllAsync()
+    public async IAsyncEnumerable<TEntity> GetAllAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Set.ToListAsync();
+        await foreach (var entity in Set.AsNoTracking().AsAsyncEnumerable().WithCancellation(cancellationToken))
+        {
+            yield return entity;
+        }
     }
 
-    public Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken)
+
+    public IEnumerable<TEntity> PageAll(int skip, int take)
     {
-        return Set.ToListAsync(cancellationToken);
+        return Set.AsNoTracking().Skip(skip).Take(take).ToArray();
     }
 
-
-    public List<TEntity> PageAll(int skip, int take)
+    public async IAsyncEnumerable<TEntity> PageAllAsync(int skip, int take, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Set.Skip(skip).Take(take).ToList();
-    }
-
-    public Task<List<TEntity>> PageAllAsync(int skip, int take)
-    {
-        return Set.Skip(skip).Take(take).ToListAsync();
-    }
-
-    public Task<List<TEntity>> PageAllAsync(int skip, int take, CancellationToken cancellationToken)
-    {
-        return Set.Skip(skip).Take(take).ToListAsync(cancellationToken);
+        await foreach (var entity in Set.AsNoTracking().Skip(skip).Take(take).AsAsyncEnumerable().WithCancellation(cancellationToken))
+        {
+            yield return entity;
+        }
     }
 
 
@@ -60,12 +57,7 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
         return Set.Find(id);
     }
 
-    public Task<TEntity?> FindByIdAsync(object id)
-    {
-        return Set.FirstOrDefaultAsync(e => e.Id == id);    
-    }
-
-    public Task<TEntity?> FindByIdAsync(object id, CancellationToken cancellationToken)
+    public Task<TEntity?> FindByIdAsync(object id, CancellationToken cancellationToken = default)
     {
         return Set.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
@@ -89,8 +81,21 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
         entry.State = EntityState.Modified;
     }
 
-    public void Remove(TEntity entity)
+    public void Remove(object id)
     {
-        Set.Remove(entity);
+        var entity = Set.Find(id);
+
+        if (entity is not null)
+            Set.Remove(entity);
+    }
+
+    public int Count()
+    {
+        return Set.Count();
+    }
+
+    public Task<int> CountAsync()
+    {
+        return Set.CountAsync();
     }
 }

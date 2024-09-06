@@ -1,6 +1,7 @@
 ﻿
 namespace Events.WebApi.Dto;
 
+
 public record ParticipantWithoutUserDto
 {
     public required int EventId { get; init; }

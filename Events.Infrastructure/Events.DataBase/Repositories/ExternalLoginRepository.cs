@@ -20,16 +20,16 @@ internal class ExternalLoginRepository : Repository<ExternalLogin>, IExternalLog
 
     public ExternalLogin? GetByProviderAndKey(string loginProvider, string providerKey)
     {
-        return Set.FirstOrDefault(l => l.Provider == loginProvider && l.ProviderKey == providerKey);
+        return Set.AsNoTracking().FirstOrDefault(l => l.Provider == loginProvider && l.ProviderKey == providerKey);
     }
 
     public Task<ExternalLogin?> GetByProviderAndKeyAsync(string loginProvider, string providerKey)
     {
-        return Set.FirstOrDefaultAsync(l => l.Provider == loginProvider && l.ProviderKey == providerKey);
+        return Set.AsNoTracking().FirstOrDefaultAsync(l => l.Provider == loginProvider && l.ProviderKey == providerKey);
     }
 
     public Task<ExternalLogin?> GetByProviderAndKeyAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
     {
-        return Set.FirstOrDefaultAsync(l => l.Provider == loginProvider && l.ProviderKey == providerKey, cancellationToken);
+        return Set.AsNoTracking().FirstOrDefaultAsync(l => l.Provider == loginProvider && l.ProviderKey == providerKey, cancellationToken);
     }
 }

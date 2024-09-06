@@ -1,7 +1,7 @@
 ﻿using Events.Domain.Entities;
 using Events.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-
+using System.Runtime.CompilerServices;
 
 namespace Events.DataBase.Repositories;
 
@@ -12,18 +12,17 @@ internal class RoleRepository : Repository<Role>, IRoleRepository
         : base(context)
     { }
 
-    public Role? FindByName(string name)
+
+    public IEnumerable<Role> GetUserRoles(int userId)
     {
-        return Set.FirstOrDefault(r => r.Name == name);
+        return Set.Where(r => r.Users.Any(u => u.Id == userId)).ToList();
     }
 
-    public Task<Role?> FindByNameAsync(string name)
+    public async IAsyncEnumerable<Role> GetUserRolesAsync(int userId,[EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Set.FirstOrDefaultAsync(x => x.Name == name);
-    }
-
-    public Task<Role?> FindByNameAsync(string roleName, CancellationToken cancellationToken)
-    {
-        return Set.FirstOrDefaultAsync(x => x.Name == roleName, cancellationToken);
+        await foreach (var role in Set.Where(r => r.Users.Any(u => u.Id == userId)).AsAsyncEnumerable().WithCancellation(cancellationToken))
+        {
+            yield return role;
+        }
     }
 }

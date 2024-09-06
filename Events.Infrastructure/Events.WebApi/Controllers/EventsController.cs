@@ -1,110 +1,147 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using AutoMapper;
-//using AutoMapper.QueryableExtensions;
-//using Events.Domain.Entities;
-//using Events.WebApi.Db;
-//using Events.WebApi.Dto;
-//using Events.WebApi.Extensions;
-//using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using Events.Domain.Entities;
+using Events.WebApi.Dto;
+using Events.Domain;
 
 
-//namespace Events.WebApi.Controllers;
+namespace Events.WebApi.Controllers;
 
 
-//[ApiController]
-//[Route("api/[controller]")]
-//public class EventsController : ControllerBase
-//{
-//    private readonly EventsContext _context;
-//    private readonly IMapper _mapper;
+[ApiController]
+[Route("api/events")]
+public class EventsController : ControllerBase
+{
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
 
-//    public EventsController(EventsContext context, IMapper mapper)
-//    {
-//        _context = context;
-//        _mapper = mapper;
-//    }
+    public EventsController(IUnitOfWork unitOfWork, IMapper mapper)
+    {
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
 
 
-//    [HttpGet]
-//    [AllowAnonymous]
-//    public async Task<ActionResult<IEnumerable<EventWithParticipantsDto>>> GetEvents()
-//    {
-//        return await _context
-//            .Events
-//            .Include(e => e.Users)
-//            .ProjectTo<EventWithParticipantsDto>(_mapper)
-//            .ToListAsync();
-//    }
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<EventWithoutParticipantsDto>>> GetEvents()
+    {
+        var events = await _unitOfWork.EventRepository.GetAllAsync().ToListAsync();
 
-//    [HttpGet("{id}")]
-//    [AllowAnonymous]
-//    public async Task<ActionResult<EventWithoutParticipantsDto>> GetEvent(int id)
-//    {
-//        var @event = await _context.Events.FindAsync(id);
+        return Ok(events.Select(e => _mapper.Map<EventWithoutParticipantsDto>(e)));
+    }
 
-//        if (@event is null)
-//            return NotFound();
+    [HttpGet("participanst")]
+    public async Task<ActionResult<IEnumerable<EventWithParticipantsDto>>> GetEventsWithParticipants()
+    {
+        var events = await _unitOfWork.EventRepository.GetAllWithParticipationsAsync().ToListAsync();
 
-//        return _mapper.Map<EventWithoutParticipantsDto>(@event);
-//    }
+        return Ok(events.Select(e => _mapper.Map<EventWithParticipantsDto>(e)));
+    }
 
-//    [HttpPost]
-//    [Authorize("Admin")]
-//    public async Task<ActionResult<Event>> PostEvent(EventCreatingDto eventDto)
-//    {
-//        var @event = _mapper.Map<Event>(eventDto);
+    [HttpGet("{id}")]
+    public async Task<ActionResult<EventWithoutParticipantsDto>> GetEvent(int id)
+    {
+        var @event = await _unitOfWork.EventRepository.FindByIdAsync(id);
 
-//        var eventEntry = _context.Events.Add(@event);
-//        await _context.SaveChangesAsync();
+        if (@event is null)
+            return NotFound();
 
-//        return CreatedAtAction(nameof(GetEvent), new { id = eventEntry.Entity.Id }, _mapper.Map<EventWithoutParticipantsDto>(eventEntry.Entity));
-//    }
+        return _mapper.Map<EventWithoutParticipantsDto>(@event);
+    }
 
-//    [HttpPut("{id}")]
-//    public async Task<IActionResult> PutEvent(int id, EventWithoutParticipantsDto eventDto)
-//    {
-//        if (id != eventDto.Id)
-//            return BadRequest();
-        
-//        var @event = await _context.Events.FindAsync(eventDto.Id);
+    [HttpGet("page/{pageNum}-of-{pageSize}")]
+    public async Task<ActionResult<IEnumerable<EventWithoutParticipantsDto>>> GetEventsPage(int pageNum, int pageSize)
+    {
+        int skip = pageNum * pageSize;
+        int take = pageSize;
 
-//        if (@event is null)
-//            return NotFound();
+        var events = await _unitOfWork.EventRepository.PageAllAsync(skip, take).ToArrayAsync();
 
-//        Event eventToReplace = _mapper.Map(eventDto, @event);
+        return Ok(events.Select(e => _mapper.Map<EventWithoutParticipantsDto>(e)));
+    }
 
-//        _context.Entry(@event).CurrentValues.SetValues(eventToReplace);
 
-//        try
-//        {
-//            await _context.SaveChangesAsync();
-//        }
-//        catch (DbUpdateConcurrencyException) when (!EventExists(id))
-//        {
-//            return NotFound();
-//        }
+    [HttpGet("{id}/participants")]
+    public async Task<ActionResult<IEnumerable<EventWithParticipantsDto>>> GetEventParticipants(int id)
+    {
+        var participants = await _unitOfWork.EventRepository.GetEventParticipationsAsync(id).ToArrayAsync();
 
-//        return NoContent();
-//    }
+        return Ok(participants.Select(p => _mapper.Map<ParticipantWithoutEventDto>(p)));
+    }
 
-//    [HttpDelete("{id}")]
-//    public async Task<IActionResult> DeleteEvent(int id)
-//    {
-//        var @event = await _context.Events.FindAsync(id);
 
-//        if (@event is null)
-//            return NotFound();
-        
-//        _context.Events.Remove(@event);
-//        await _context.SaveChangesAsync();
+    [HttpPost]
+    public async Task<ActionResult<Event>> PostEvent(EventCreatingDto eventDto)
+    {
+        var @event = _mapper.Map<Event>(eventDto);
 
-//        return NoContent();
-//    }
+        _unitOfWork.EventRepository.Add(@event);
 
-//    private bool EventExists(int id)
-//    {
-//        return _context.Events.Any(e => e.Id == id);
-//    }
-//}
+        if (!await _unitOfWork.SaveChangesAsync())
+            return BadRequest();
+
+        var newEvent = _unitOfWork.EventRepository.FindByName(eventDto.Name)!;
+
+        return CreatedAtAction(nameof(GetEvent), new { id = newEvent.Id }, _mapper.Map<EventWithoutParticipantsDto>(@event with { Id = newEvent.Id }));
+    }
+
+
+    [HttpPost("{eventId}/participants/{userId}")]
+    public async Task<IActionResult> PostEventParticipant(int eventId, int userId)
+    {
+        _unitOfWork.EventRepository.AddParticipant(eventId, userId);
+
+        if (!await _unitOfWork.SaveChangesAsync())
+            return BadRequest();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{eventId}/participants/{userId}")]
+    public async Task<IActionResult> DeleteEventParticipant(int eventId, int userId)
+    {
+        _unitOfWork.EventRepository.RemoveParticipant(eventId, userId);
+
+        if (!await _unitOfWork.SaveChangesAsync())
+            return BadRequest();
+
+        return NoContent();
+    }
+
+
+    [HttpPut]
+    public async Task<IActionResult> PutEvent(EventWithoutParticipantsDto eventDto)
+    {
+        var @event = await _unitOfWork.EventRepository.FindByIdAsync(eventDto.Id);
+
+        if (@event is null)
+            return NotFound();
+
+        Event eventToReplace = _mapper.Map(eventDto, @event);
+
+        _unitOfWork.EventRepository.Update(eventToReplace);
+
+        if (!await _unitOfWork.SaveChangesAsync())
+            return BadRequest();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteEvent(int id)
+    {
+        var @event = await _unitOfWork.EventRepository.FindByIdAsync(id);
+
+        if (@event is null)
+            return NotFound();
+
+        _unitOfWork.EventRepository.Remove(@event.Id);
+
+        if (!await _unitOfWork.SaveChangesAsync())
+            return BadRequest();
+
+        return NoContent();
+    }
+}

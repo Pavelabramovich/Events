@@ -23,7 +23,8 @@ internal class ClaimConfiguration : IEntityTypeConfiguration<Claim>
             .HasOne(c => c.User)
             .WithMany(u => u.Claims)
             .HasForeignKey(c => c.UserId)
-            .IsRequired();
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder
             .Property(c => c.UserId)

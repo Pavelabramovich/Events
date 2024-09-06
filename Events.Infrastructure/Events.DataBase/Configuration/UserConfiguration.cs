@@ -22,11 +22,13 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
         builder
             .Property(u => u.Name)
             .HasColumnName("name")
+             .HasMaxLength(32)
             .IsOptional();
 
         builder
             .Property(u => u.Surname)
             .HasColumnName("surname")
+            .HasMaxLength(32)
             .IsOptional();
 
         builder
@@ -37,11 +39,17 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
         builder
             .Property(u => u.Login)
             .HasColumnName("login")
+            .HasMaxLength(32)
             .IsRequired();
+
+        builder
+            .HasIndex(u => u.Login)
+            .IsUnique();
 
         builder
             .Property(u => u.HashedPassword)
             .HasColumnName("hashed_password")
+            .HasMaxLength(32)
             .IsRequired();
     
         builder
@@ -72,7 +80,8 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
         builder
             .HasMany(u => u.Claims)
             .WithOne(c => c.User)
-            .HasForeignKey(c => c.UserId);
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder
             .HasMany(u => u.Events)

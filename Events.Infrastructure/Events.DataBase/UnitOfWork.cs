@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Threading;
 
 
 namespace Events.DataBase;
@@ -15,77 +16,107 @@ namespace Events.DataBase;
 
 public class UnitOfWork : IUnitOfWork
 {
-    private readonly EventsContext _context;
+    private protected readonly EventsContext _context;
 
-    private IEventRepository? _eventRepository;
-    private IUserRepository? _userRepository;
-    private IExternalLoginRepository? _externalLoginRepository;
-    private IRoleRepository? _roleRepository;
-    
+    private readonly Lazy<IEventRepository> _eventRepositoryLazy;
+    private readonly Lazy<IUserRepository> _userRepositoryLazy;
+    private readonly Lazy<IExternalLoginRepository> _externalLoginRepositoryLazy;
+    private readonly Lazy<IRoleRepository> _roleRepositoryLazy;
+    private readonly Lazy<IClaimRepository> _claimRepositoryLazy;
+
+    protected bool _disposed;
+
 
     public UnitOfWork()
-        : this(options => options.UseNpgsql("Server=localhost;Port=5432;User Id=postgres;Password=NotSqlite;Database=events;Include Error Detail = true;"))
-    { }
-
-    private UnitOfWork(Action<DbContextOptionsBuilder> configureAction)
     {
-        var builder = new DbContextOptionsBuilder<EventsContext>();
-        configureAction(builder);
-        DbContextOptions<EventsContext> options = builder.Options;
+        _context = new EventsContext();
 
-        _context = new EventsContext(options);
-
-        _eventRepository = null;
-        _userRepository = null;
-        _externalLoginRepository = null;
-        _roleRepository = null;
+        _eventRepositoryLazy = new(() => new EventRepository(_context));
+        _userRepositoryLazy = new(() => new UserRepository(_context));
+        _externalLoginRepositoryLazy = new(() => new ExternalLoginRepository(_context));
+        _roleRepositoryLazy = new(() => new RoleRepository(_context));
+        _claimRepositoryLazy = new(() => new ClaimRepository(_context));
     }
 
 
     public IEventRepository EventRepository
     {
-        get => _eventRepository ??= new EventRepository(_context);
+        get => !_disposed
+            ? _eventRepositoryLazy.Value
+            : throw new ObjectDisposedException(nameof(UnitOfWork), "UnitOfWork is disposed.");
     }
 
     public IUserRepository UserRepository
     {
-        get => _userRepository ??= new UserRepository(_context);
+        get => !_disposed
+            ? _userRepositoryLazy.Value
+            : throw new ObjectDisposedException(nameof(UnitOfWork), "UnitOfWork is disposed.");
     }
 
     public IExternalLoginRepository ExternalLoginRepository
     {
-        get  => _externalLoginRepository ??= new ExternalLoginRepository(_context); 
+        get  => !_disposed
+            ? _externalLoginRepositoryLazy.Value
+            : throw new ObjectDisposedException(nameof(UnitOfWork), "UnitOfWork is disposed."); 
     }
 
     public IRoleRepository RoleRepository
     {
-        get => _roleRepository ??= new RoleRepository(_context); 
+        get => !_disposed
+            ? _roleRepositoryLazy.Value
+            : throw new ObjectDisposedException(nameof(UnitOfWork), "UnitOfWork is disposed."); 
+    }
+
+    public IClaimRepository ClaimRepository
+    {
+        get => !_disposed
+            ? _claimRepositoryLazy.Value
+            : throw new ObjectDisposedException(nameof(UnitOfWork), "UnitOfWork is disposed.");
     }
 
 
-    public int SaveChanges()
+    public bool SaveChanges()
     {
-        return _context.SaveChanges();
+        try
+        {
+            _context.SaveChanges(); 
+            return true;
+        }
+        catch (DbUpdateException dbException)
+        {
+            return false;
+        }
+        catch (Exception exception)
+        {
+            return false;
+        }
     }
 
-    public Task<int> SaveChangesAsync()
+    public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return _context.SaveChangesAsync();
-    }
-
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken)
-    {
-        return _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateException dbException)
+        {
+            return false;
+        }
+        catch (Exception exception)
+        {
+            return false;
+        }
     }
 
 
     public void Dispose()
     {
-        _eventRepository = null;
-        _userRepository = null;
-        _externalLoginRepository = null;
-        _roleRepository = null;
-        
+        if (_disposed)
+            return;
+
         _context.Dispose();
+        
+        _disposed = true;
     }
 }

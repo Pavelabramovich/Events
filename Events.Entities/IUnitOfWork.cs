@@ -7,12 +7,11 @@ namespace Events.Domain;
 public interface IUnitOfWork : IDisposable
 {
     IEventRepository EventRepository { get; }
-
     IUserRepository UserRepository { get; }
     IExternalLoginRepository ExternalLoginRepository { get; }
     IRoleRepository RoleRepository { get; }
+    IClaimRepository ClaimRepository { get; }
 
-    int SaveChanges();
-    Task<int> SaveChangesAsync();
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+    bool SaveChanges();
+    Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

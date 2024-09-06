@@ -1,7 +1,5 @@
 ﻿using System.Security.Claims;
-using Events.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 
 
 namespace Events.WebApi.Authentication;
@@ -12,8 +10,6 @@ public class RoleRequirementHandler : AuthorizationHandler<RoleRequirement>
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleRequirement requirement)
     {
         IEnumerable<IAuthorizationRequirement> requirements = context.Requirements;
-        //var claims = await _userManager.GetClaimsAsync();
-
 
         if (!context.User.HasClaim(x => x.Type == ClaimTypes.Role))
         {

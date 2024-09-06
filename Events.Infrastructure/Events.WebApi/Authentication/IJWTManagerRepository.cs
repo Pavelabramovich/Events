@@ -4,10 +4,10 @@
 namespace Events.WebApi.Authentication;
 
 
-public interface IJWTManagerRepository
+public interface IJwtManagerRepository
 {
-    Tokens GenerateToken(string userName, params Claim[] additionalClaims);
-    Tokens GenerateRefreshToken(string userName, params Claim[] additionalClaims);
+    Tokens? GenerateToken(int userId, params Claim[] additionalClaims);
+    Tokens? GenerateRefreshToken(int userId, params Claim[] additionalClaims);
 
     ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
 }
