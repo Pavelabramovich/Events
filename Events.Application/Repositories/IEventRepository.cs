@@ -18,6 +18,9 @@ public interface IEventRepository : IRepository<Event>
     void RemoveParticipant(int eventId, int userId);
     Task RemoveParticipantAsync(int eventId, int userId, CancellationToken cancellationToken = default);
 
+    int ParticipantsCount(int eventId);
+    Task<int> ParticipantsCountAsync(int eventId, CancellationToken cancellationToken = default);
+
     Event? FindByName(string name);
     Task<Event?> FindByNameAsync(string name, CancellationToken cancellationToken = default);
 }

@@ -97,6 +97,22 @@ internal class EventRepository : Repository<Event>, IEventRepository
         @event.Participants.Remove(participation);
     }
 
+    public int ParticipantsCount(int eventId)
+    {
+        var @event = Set.Include(e => e.Participants).FirstOrDefault(e => e.Id == eventId)
+            ?? throw new ArgumentException("Event not found");
+
+        return @event.Participants.Count; 
+    }
+
+    public async Task<int> ParticipantsCountAsync(int eventId, CancellationToken cancellationToken = default)
+    {
+        var @event = await Set.Include(e => e.Participants).FirstOrDefaultAsync(e => e.Id == eventId, cancellationToken)
+           ?? throw new ArgumentException("Event not found");
+
+        return @event.Participants.Count;
+    }
+
 
     public Event? FindByName(string name)
     {
