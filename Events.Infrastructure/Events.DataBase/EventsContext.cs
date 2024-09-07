@@ -10,16 +10,21 @@ namespace Events.DataBase;
 
 internal class EventsContext : DbContext
 {
-    public EventsContext()
+    private readonly bool _hasData;
+
+
+    public EventsContext(DbContextOptions<EventsContext> options, bool hasData = true)
+        : base(options)
     {
+        _hasData = hasData;
+
         ChangeTracker.LazyLoadingEnabled = false;
     }
 
-    public EventsContext(DbContextOptions<EventsContext> options)
-        : base(options)
-    {
-        ChangeTracker.LazyLoadingEnabled = false;
-    }
+    public EventsContext(bool hasData = true)
+        : this(new DbContextOptionsBuilder<EventsContext>()
+              .UseNpgsql("Server=localhost;Port=5432;User Id=postgres;Password=NotSqlite;Database=events;Include Error Detail = true;").Options, hasData)
+    { }
 
 
     public DbSet<Event> Events { get; private set; }
@@ -43,18 +48,9 @@ internal class EventsContext : DbContext
 
         new RefreshTokenConfiguration().Configure(modelBuilder.Entity<RefreshToken>());
 
-
-        SeedDefaultData(modelBuilder);
+        if (_hasData)
+            SeedDefaultData(modelBuilder);
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql("Server=localhost;Port=5432;User Id=postgres;Password=NotSqlite;Database=events;Include Error Detail = true;");
-        }
-    }
-
 
     private static void SeedDefaultData(ModelBuilder modelBuilder)
     {

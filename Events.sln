@@ -11,7 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Events.Infrastructure", "Ev
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.DataBase", "Events.Infrastructure\Events.DataBase\Events.DataBase.csproj", "{661E3686-6359-4209-BC86-E0FE9CC099BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events.Application", "Events.Application\Events.Application.csproj", "{A7417515-6CB3-4950-A00E-FB5CEA604454}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.Application", "Events.Application\Events.Application.csproj", "{A7417515-6CB3-4950-A00E-FB5CEA604454}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events.Tests", "Events.Tests\Events.Tests.csproj", "{9B5C797B-7991-4C23-B6DD-89F03DF02925}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{A7417515-6CB3-4950-A00E-FB5CEA604454}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7417515-6CB3-4950-A00E-FB5CEA604454}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7417515-6CB3-4950-A00E-FB5CEA604454}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B5C797B-7991-4C23-B6DD-89F03DF02925}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B5C797B-7991-4C23-B6DD-89F03DF02925}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B5C797B-7991-4C23-B6DD-89F03DF02925}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B5C797B-7991-4C23-B6DD-89F03DF02925}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

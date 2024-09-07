@@ -11,6 +11,7 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
 {
     private readonly EventsContext _context;
 
+
     internal Repository(EventsContext context)
     {
         _context = context;
@@ -65,15 +66,13 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
 
     public void Update(TEntity entity)
     {
-        var entry = _context.Entry(entity);
+        ArgumentNullException
+            .ThrowIfNull(entity, nameof(entity));
 
-        if (entry.State == EntityState.Detached)
-        {
-            Set.Attach(entity);
-            entry = _context.Entry(entity);
-        }
+        var existedEntity = Set.FirstOrDefault(e => e.Id == entity.Id)
+            ?? throw new InvalidOperationException("Entity not found.");
 
-        entry.State = EntityState.Modified;
+        _context.Entry(existedEntity).CurrentValues.SetValues(entity);
     }
 
     public void Remove(object id)
