@@ -96,6 +96,11 @@ public class EventsController : ControllerBase
     [Authorize]
     public async Task<ActionResult<Event>> PostEvent(EventCreatingDto eventDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             await _createUseCase.ExecuteAsync(eventDto);
@@ -121,7 +126,7 @@ public class EventsController : ControllerBase
         }
         catch (ValidationException exception)
         {
-            return BadRequest();
+            return BadRequest(exception.Message);
         }
 
         return NoContent();
@@ -137,7 +142,7 @@ public class EventsController : ControllerBase
         }
         catch (ValidationException exception)
         {
-            return BadRequest();
+            return BadRequest(exception.Message);
         }
 
         return NoContent();
@@ -148,13 +153,18 @@ public class EventsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> PutEvent(EventWithoutParticipantsDto eventDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             await _updateUseCase.ExecuteAsync(eventDto); 
         }
         catch (ValidationException exception)
         {
-            return BadRequest();
+            return BadRequest(exception.Message);
         }
 
         return NoContent();
@@ -170,7 +180,7 @@ public class EventsController : ControllerBase
         }
         catch (ValidationException exception)
         {
-            return BadRequest();
+            return BadRequest(exception.Message);
         }
 
         return NoContent();

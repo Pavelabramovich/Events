@@ -131,7 +131,7 @@ public static class UserUseCases
             _unitOfWork.UserRepository.Add(user);
 
             if (!_unitOfWork.SaveChanges())
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
 
         public override async Task ExecuteAsync(UserCreatingDto userDto, CancellationToken cancellationToken = default)
@@ -141,7 +141,7 @@ public static class UserUseCases
             _unitOfWork.UserRepository.Add(user);
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
     }
 
@@ -155,16 +155,14 @@ public static class UserUseCases
         public override async Task ExecuteAsync(UserWithoutParticipantsDto userDto, CancellationToken cancellationToken = default)
         {
             var user = await _unitOfWork.UserRepository.FindByIdAsync(userDto.Id, cancellationToken)
-                ?? throw new ValidationException();
+                ?? throw new ValidationException("User with this id not found");
 
             var userToReplace = _mapper.Map<UserWithoutParticipantsDto, User>(userDto, user);
 
             _unitOfWork.UserRepository.Update(userToReplace);
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
-
-            return;
+                throw new ValidationException("Internal error");
         }
     }
 
@@ -175,15 +173,15 @@ public static class UserUseCases
             _unitOfWork.UserRepository.Remove(id);
 
             if (!_unitOfWork.SaveChanges())
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
 
         public override async Task ExecuteAsync(int id, CancellationToken cancellationToken = default)
         {
             _unitOfWork.UserRepository.Remove(id);
 
-            if (!await _unitOfWork.SaveChangesAsync())
-                throw new ValidationException();
+            if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
+                throw new ValidationException("Internal error");
         }
     }
 }

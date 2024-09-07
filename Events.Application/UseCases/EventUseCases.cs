@@ -32,10 +32,13 @@ public static class EventUseCases
 
     public class GetById(IUnitOfWork unitOfWork, IMapper mapper) : FuncUseCase<int, EventWithoutParticipantsDto?>(unitOfWork, mapper)
     {
+        private const string NotFoundErrorMessage = "Not found event with this id.";
+
+
         public override EventWithoutParticipantsDto? Execute(int id)
         {
             var @event = _unitOfWork.EventRepository.FindById(id)
-                ?? throw new ValidationException();
+                ?? throw new ValidationException(NotFoundErrorMessage);
 
             return _mapper.Map<EventWithoutParticipantsDto>(@event);
         }
@@ -43,7 +46,7 @@ public static class EventUseCases
         public override async Task<EventWithoutParticipantsDto?> ExecuteAsync(int id, CancellationToken cancellationToken = default)
         {
             var @event = await _unitOfWork.EventRepository.FindByIdAsync(id, cancellationToken)
-                ?? throw new ValidationException();
+                ?? throw new ValidationException(NotFoundErrorMessage);
 
             return _mapper.Map<EventWithoutParticipantsDto>(@event);
         }
@@ -51,10 +54,13 @@ public static class EventUseCases
 
     public class GetByName(IUnitOfWork unitOfWork, IMapper mapper) : FuncUseCase<string, EventWithoutParticipantsDto?>(unitOfWork, mapper)
     {
+        private const string NotFoundErrorMessage = "Not found event with this name.";
+
+
         public override EventWithoutParticipantsDto? Execute(string name)
         {
             var @event = _unitOfWork.EventRepository.FindByName(name)
-                ?? throw new ValidationException();
+                ?? throw new ValidationException(NotFoundErrorMessage);
 
             return _mapper.Map<EventWithoutParticipantsDto>(@event);
         }
@@ -62,7 +68,7 @@ public static class EventUseCases
         public override async Task<EventWithoutParticipantsDto?> ExecuteAsync(string name, CancellationToken cancellationToken = default)
         {
             var @event = await _unitOfWork.EventRepository.FindByNameAsync(name, cancellationToken)
-                ?? throw new ValidationException();
+                ?? throw new ValidationException(NotFoundErrorMessage);
 
             return _mapper.Map<EventWithoutParticipantsDto>(@event);
         }
@@ -141,7 +147,7 @@ public static class EventUseCases
             _unitOfWork.EventRepository.Add(@event);
 
             if (!_unitOfWork.SaveChanges())
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
 
         public override async Task ExecuteAsync(EventCreatingDto eventDto, CancellationToken cancellationToken = default)
@@ -151,7 +157,7 @@ public static class EventUseCases
             _unitOfWork.EventRepository.Add(@event);
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
     }
 
@@ -160,27 +166,27 @@ public static class EventUseCases
         public override void Execute(EventWithoutParticipantsDto eventDto)
         {
             var @event = _unitOfWork.EventRepository.FindById(eventDto.Id)
-                ?? throw new ValidationException();
+                ?? throw new ValidationException("Event with this id not found");
 
             Event eventToReplace = _mapper.Map(eventDto, @event);
 
             _unitOfWork.EventRepository.Update(eventToReplace);
 
             if (!_unitOfWork.SaveChanges())
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
 
         public override async Task ExecuteAsync(EventWithoutParticipantsDto eventDto, CancellationToken cancellationToken = default)
         {
             var @event = await _unitOfWork.EventRepository.FindByIdAsync(eventDto.Id, cancellationToken)
-                ?? throw new ValidationException();
+                ?? throw new ValidationException("Event with this id not found");
 
             Event eventToReplace = _mapper.Map(eventDto, @event);
 
             _unitOfWork.EventRepository.Update(eventToReplace);
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
     }
 
@@ -191,7 +197,7 @@ public static class EventUseCases
             _unitOfWork.EventRepository.AddParticipant(eventId, userId);
 
             if (!_unitOfWork.SaveChanges())
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
 
         public override async Task ExecuteAsync(int eventId, int userId, CancellationToken cancellationToken = default)
@@ -199,7 +205,7 @@ public static class EventUseCases
             await _unitOfWork.EventRepository.AddParticipantAsync(eventId, userId, cancellationToken);
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
     }
 
@@ -209,23 +215,23 @@ public static class EventUseCases
         public override void Execute(int id)
         {
             var @event = _unitOfWork.EventRepository.FindById(id)
-                ?? throw new ValidationException();
+                ?? throw new ValidationException("Event with this id not found");
 
             _unitOfWork.EventRepository.Remove(@event.Id);
 
             if (!_unitOfWork.SaveChanges())
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
 
         public override async Task ExecuteAsync(int id, CancellationToken cancellationToken = default)
         {
             var @event = await _unitOfWork.EventRepository.FindByIdAsync(id, cancellationToken)
-                ?? throw new ValidationException();
+                ?? throw new ValidationException("Event with this id not found");
 
             _unitOfWork.EventRepository.Remove(@event.Id);
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
     }
 
@@ -236,7 +242,7 @@ public static class EventUseCases
             _unitOfWork.EventRepository.RemoveParticipant(eventId, userId);
 
             if (!_unitOfWork.SaveChanges())
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
 
         public override async Task ExecuteAsync(int eventId, int userId, CancellationToken cancellationToken = default)
@@ -244,7 +250,7 @@ public static class EventUseCases
             await _unitOfWork.EventRepository.RemoveParticipantAsync(eventId, userId, cancellationToken);
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
     }
 }

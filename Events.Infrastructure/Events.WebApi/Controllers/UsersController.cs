@@ -11,6 +11,8 @@ using Events.Application.UseCases;
 using DomainClaim = Events.Domain.Claim;
 using SystemClaim = System.Security.Claims.Claim;
 using System.ComponentModel.DataAnnotations;
+using System;
+using Microsoft.AspNetCore.Authorization;
 
 
 
@@ -105,17 +107,36 @@ public class UsersController : ControllerBase
 
 
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<UserWithParticipantsDto>> PostUser(UserCreatingDto userDto)
     {
-        await _createUseCase.ExecuteAsync(userDto);
-        var newUser = _getByLoginUseCase.Execute(userDto.Login)!;
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-        return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
+        try 
+        { 
+            await _createUseCase.ExecuteAsync(userDto);
+            var newUser = _getByLoginUseCase.Execute(userDto.Login)!;
+
+            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
+        }
+        catch (ValidationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> PutUser(UserWithoutParticipantsDto userDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             await _updateUseCase.ExecuteAsync(userDto);
@@ -128,6 +149,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> DeleteUser(int id)
     {
         try
@@ -145,6 +167,11 @@ public class UsersController : ControllerBase
     [HttpPost("authenticate-user")]
     public async Task<IActionResult> AuthenticateAsync(UserLoginDto userLoginDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             var newTokens = await _authenticateUseCase.ExecuteAsync(userLoginDto);
@@ -156,7 +183,7 @@ public class UsersController : ControllerBase
         }
         catch (ValidationException exception)
         {
-            return BadRequest();
+            return BadRequest(exception.Message);
         }
     }
 
@@ -174,7 +201,7 @@ public class UsersController : ControllerBase
         }
         catch (ValidationException exception)
         {
-            return BadRequest();
+            return BadRequest(exception.Message);
         }
     }
 }

@@ -52,7 +52,7 @@ public static class RoleUseCases
             _unitOfWork.RoleRepository.Add(new Role { Name = name });
 
             if (!_unitOfWork.SaveChanges())
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
 
         public override async Task ExecuteAsync(string name, CancellationToken cancellationToken = default)
@@ -60,7 +60,7 @@ public static class RoleUseCases
             _unitOfWork.RoleRepository.Add(new Role { Name = name });
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
     }
 
@@ -83,7 +83,7 @@ public static class RoleUseCases
             _unitOfWork.RoleRepository.Add(new Role() { Name = newName });
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
     }
 
@@ -105,7 +105,7 @@ public static class RoleUseCases
             _unitOfWork.RoleRepository.Remove(role.Name);
 
             if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-                throw new ValidationException();
+                throw new ValidationException("Internal error");
         }
     }
 }
