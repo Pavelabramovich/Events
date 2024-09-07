@@ -1,4 +1,4 @@
-﻿using Events.Domain.Entities;
+﻿using Events.Domain;
 
 
 namespace Events.WebApi.Authentication;

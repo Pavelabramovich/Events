@@ -1,9 +1,4 @@
 ﻿
-using Events.DataBase;
-using Events.Domain;
-using Events.WebApi.Authentication;
-using Microsoft.AspNetCore.Authorization;
-
 namespace Events.WebApi.App;
 
 

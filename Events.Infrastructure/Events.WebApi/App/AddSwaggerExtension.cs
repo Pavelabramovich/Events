@@ -1,9 +1,5 @@
-﻿
-using Events.DataBase;
-using Events.Domain;
-using Events.WebApi.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
+
 
 namespace Events.WebApi.App;
 

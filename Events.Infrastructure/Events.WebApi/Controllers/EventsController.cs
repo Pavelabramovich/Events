@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using Events.Domain.Entities;
-using Events.WebApi.Dto;
 using Events.Domain;
+using Events.Application.Dto;
+using Events.Application.UseCases;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Events.WebApi.Controllers;
@@ -13,134 +13,165 @@ namespace Events.WebApi.Controllers;
 [Route("api/events")]
 public class EventsController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly EventUseCases.GetAll _getAllUseCase;
+    private readonly EventUseCases.GetById _getByIdUseCase;
+    private readonly EventUseCases.GetByName _getByNameUseCase;
+    private readonly EventUseCases.GetAllWithParticipants _getAllWithParticipantsUseCase;
+    private readonly EventUseCases.GetParticipantsById _getParticipantsByIdUseCase;
+    private readonly EventUseCases.GetPage _getPageUseCase;
+    private readonly EventUseCases.Create _createUseCase;
+    private readonly EventUseCases.Update _updateUseCase;
+    private readonly EventUseCases.UpdatePaticipation _updatePaticipationUseCase;
+    private readonly EventUseCases.Remove _removeUseCase;
+    private readonly EventUseCases.RemoveParticipation _removeParticipationUseCase;
 
 
-    public EventsController(IUnitOfWork unitOfWork, IMapper mapper)
+    public EventsController(
+        EventUseCases.GetAll getAllUseCase,
+        EventUseCases.GetById getByIdUseCase,
+        EventUseCases.GetByName getByNameUseCase,
+        EventUseCases.GetAllWithParticipants getAllWithParticipantsUseCase,
+        EventUseCases.GetParticipantsById getParticipantsByIdUseCase,
+        EventUseCases.GetPage getPageUseCase,
+        EventUseCases.Create createUseCase,
+        EventUseCases.Update updateUseCase,
+        EventUseCases.UpdatePaticipation updatePaticipationUseCase,
+        EventUseCases.Remove removeUseCase,
+        EventUseCases.RemoveParticipation removeParticipationUseCase)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        _getAllUseCase = getAllUseCase;
+        _getByIdUseCase = getByIdUseCase;
+        _getByNameUseCase = getByNameUseCase;
+        _getAllWithParticipantsUseCase = getAllWithParticipantsUseCase;
+        _getParticipantsByIdUseCase = getParticipantsByIdUseCase;
+        _getPageUseCase = getPageUseCase;
+        _createUseCase = createUseCase;
+        _updateUseCase = updateUseCase;
+        _updatePaticipationUseCase = updatePaticipationUseCase;
+        _removeUseCase = removeUseCase;
+        _removeParticipationUseCase = removeParticipationUseCase;
     }
 
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EventWithoutParticipantsDto>>> GetEvents()
     {
-        var events = await _unitOfWork.EventRepository.GetAllAsync().ToListAsync();
-
-        return Ok(events.Select(e => _mapper.Map<EventWithoutParticipantsDto>(e)));
+        var events = await _getAllUseCase.ExecuteAsync();
+        return Ok(events);
     }
 
     [HttpGet("participanst")]
     public async Task<ActionResult<IEnumerable<EventWithParticipantsDto>>> GetEventsWithParticipants()
     {
-        var events = await _unitOfWork.EventRepository.GetAllWithParticipationsAsync().ToListAsync();
-
-        return Ok(events.Select(e => _mapper.Map<EventWithParticipantsDto>(e)));
+        var events = await _getAllWithParticipantsUseCase.ExecuteAsync();
+        return Ok(events);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<EventWithoutParticipantsDto>> GetEvent(int id)
     {
-        var @event = await _unitOfWork.EventRepository.FindByIdAsync(id);
+        var @event = await _getByIdUseCase.ExecuteAsync(id);
 
-        if (@event is null)
-            return NotFound();
-
-        return _mapper.Map<EventWithoutParticipantsDto>(@event);
+        return @event 
+            ?? throw new ValidationException();
     }
 
-    [HttpGet("page/{pageNum}-of-{pageSize}")]
+    [HttpGet("page/{pageNum:int}-of-{pageSize:int}")]
     public async Task<ActionResult<IEnumerable<EventWithoutParticipantsDto>>> GetEventsPage(int pageNum, int pageSize)
     {
-        int skip = pageNum * pageSize;
-        int take = pageSize;
-
-        var events = await _unitOfWork.EventRepository.PageAllAsync(skip, take).ToArrayAsync();
-
-        return Ok(events.Select(e => _mapper.Map<EventWithoutParticipantsDto>(e)));
+        var events = await _getPageUseCase.ExecuteAsync(pageNum, pageSize);
+        return Ok(events);
     }
 
 
-    [HttpGet("{id}/participants")]
+    [HttpGet("{id:int}/participants")]
     public async Task<ActionResult<IEnumerable<EventWithParticipantsDto>>> GetEventParticipants(int id)
     {
-        var participants = await _unitOfWork.EventRepository.GetEventParticipationsAsync(id).ToArrayAsync();
-
-        return Ok(participants.Select(p => _mapper.Map<ParticipantWithoutEventDto>(p)));
+        var participants = await _getParticipantsByIdUseCase.ExecuteAsync(id);
+        return Ok(participants);
     }
 
 
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<Event>> PostEvent(EventCreatingDto eventDto)
     {
-        var @event = _mapper.Map<Event>(eventDto);
+        try
+        {
+            await _createUseCase.ExecuteAsync(eventDto);
+        }
+        catch (ValidationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
 
-        _unitOfWork.EventRepository.Add(@event);
+        var newEvent = await _getByNameUseCase.ExecuteAsync(eventDto.Name);
 
-        if (!await _unitOfWork.SaveChangesAsync())
-            return BadRequest();
-
-        var newEvent = _unitOfWork.EventRepository.FindByName(eventDto.Name)!;
-
-        return CreatedAtAction(nameof(GetEvent), new { id = newEvent.Id }, _mapper.Map<EventWithoutParticipantsDto>(@event with { Id = newEvent.Id }));
+        return CreatedAtAction(nameof(GetEvent), new { id = newEvent!.Id }, newEvent);
     }
 
 
-    [HttpPost("{eventId}/participants/{userId}")]
+    [HttpPost("{eventId:int}/participants/{userId:int}")]
+    [Authorize]
     public async Task<IActionResult> PostEventParticipant(int eventId, int userId)
     {
-        _unitOfWork.EventRepository.AddParticipant(eventId, userId);
-
-        if (!await _unitOfWork.SaveChangesAsync())
+        try
+        {
+            await _updatePaticipationUseCase.ExecuteAsync(eventId, userId);
+        }
+        catch (ValidationException exception)
+        {
             return BadRequest();
+        }
 
         return NoContent();
     }
 
-    [HttpDelete("{eventId}/participants/{userId}")]
+    [HttpDelete("{eventId:int}/participants/{userId:int}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> DeleteEventParticipant(int eventId, int userId)
     {
-        _unitOfWork.EventRepository.RemoveParticipant(eventId, userId);
-
-        if (!await _unitOfWork.SaveChangesAsync())
+        try
+        {
+            await _removeParticipationUseCase.ExecuteAsync(eventId, userId);
+        }
+        catch (ValidationException exception)
+        {
             return BadRequest();
+        }
 
         return NoContent();
     }
 
 
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> PutEvent(EventWithoutParticipantsDto eventDto)
     {
-        var @event = await _unitOfWork.EventRepository.FindByIdAsync(eventDto.Id);
-
-        if (@event is null)
-            return NotFound();
-
-        Event eventToReplace = _mapper.Map(eventDto, @event);
-
-        _unitOfWork.EventRepository.Update(eventToReplace);
-
-        if (!await _unitOfWork.SaveChangesAsync())
+        try
+        {
+            await _updateUseCase.ExecuteAsync(eventDto); 
+        }
+        catch (ValidationException exception)
+        {
             return BadRequest();
+        }
 
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> DeleteEvent(int id)
     {
-        var @event = await _unitOfWork.EventRepository.FindByIdAsync(id);
-
-        if (@event is null)
-            return NotFound();
-
-        _unitOfWork.EventRepository.Remove(@event.Id);
-
-        if (!await _unitOfWork.SaveChangesAsync())
+        try
+        {
+            await _removeUseCase.ExecuteAsync(id);
+        }
+        catch (ValidationException exception)
+        {
             return BadRequest();
+        }
 
         return NoContent();
     }

@@ -1,4 +1,4 @@
-﻿using Events.Domain.Entities;
+﻿using Events.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

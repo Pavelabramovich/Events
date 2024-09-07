@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using Events.Domain.Entities;
+using Events.Domain;
 using Events.DataBase.Extensions;
-using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace Events.DataBase.Configuration;

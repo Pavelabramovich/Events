@@ -1,9 +1,5 @@
-﻿
-using Events.DataBase;
-using Events.Domain;
-using Events.WebApi.Authentication;
-using Events.WebApi.ExceptionMiddleware;
-using Microsoft.AspNetCore.Authorization;
+﻿using Events.WebApi.ExceptionMiddleware;
+
 
 namespace Events.WebApi.App;
 

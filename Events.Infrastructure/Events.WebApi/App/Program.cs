@@ -1,13 +1,7 @@
 using System.Text.Json.Serialization;
-using Events.WebApi.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authorization;
-using Events.Domain;
-using Events.DataBase;
 using Events.WebApi.App;
+using Events.Application.Dto;
+using Events.WebApi.Extensions;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddConfiguration();
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper<EventsMapperProfile>();
+
 
 builder.Services
     .AddControllers()

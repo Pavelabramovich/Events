@@ -1,7 +1,8 @@
-﻿using Events.Domain.Entities;
-using Events.Domain.Repositories;
+﻿using Events.Domain;
+using Events.Application.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
+
 
 namespace Events.DataBase.Repositories;
 
@@ -15,19 +16,26 @@ internal class EventRepository : Repository<Event>, IEventRepository
 
     public IEnumerable<Event> GetAllWithParticipations()
     {
-        return Set.AsNoTracking().Include(e => e.Users).ToArray();
+        return Set.AsNoTracking().Include(e => e.Participants).ThenInclude(p => p.User).ToArray();
     }
 
     public async IAsyncEnumerable<Event> GetAllWithParticipationsAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        await foreach (var @event in Set.AsNoTracking().AsAsyncEnumerable().WithCancellation(cancellationToken))
+        var events = Set
+            .AsNoTracking()
+            .Include(e => e.Participants)
+            .ThenInclude(p => p.User)
+            .AsAsyncEnumerable()
+            .WithCancellation(cancellationToken);
+
+        await foreach (var @event in events)
         {
             yield return @event;
         }
     }
 
 
-    public IEnumerable<Participation> GetEventParticipants(int eventId)
+    public IEnumerable<Participation> GetEventParticipations(int eventId)
     {
         return Set.AsNoTracking().Where(e => e.Id == eventId).Include(e => e.Participants).ThenInclude(p => p.User).Single().Participants.ToArray();
     }

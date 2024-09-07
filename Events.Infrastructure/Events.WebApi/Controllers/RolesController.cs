@@ -1,91 +1,100 @@
 ﻿using AutoMapper;
+using Events.Application;
 using Events.Domain;
-using Events.Domain.Entities;
-using Events.WebApi.Dto;
+using Events.Application.Dto;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using Events.Application.UseCases;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Events.WebApi.Controllers;
 
 
-[Route("api/[controller]")]
+[Route("api/roles")]
 [ApiController]
 public class RolesController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly RoleUseCases.GetAll _getAllUseCase;
+    private readonly RoleUseCases.Exists _existsUseCase;
+    private readonly RoleUseCases.Create _createUseCase;
+    private readonly RoleUseCases.Update _updateUseCase;
+    private readonly RoleUseCases.Remove _removeUseCase;
 
 
-    public RolesController(IUnitOfWork unitOfWork, IMapper mapper)
+    public RolesController(
+        RoleUseCases.GetAll getAllUseCase,
+        RoleUseCases.Exists existsUseCase,
+        RoleUseCases.Create createUseCase,
+        RoleUseCases.Update updateUseCase,
+        RoleUseCases.Remove removwUseCase)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        _getAllUseCase = getAllUseCase;
+        _existsUseCase = existsUseCase;
+        _createUseCase = createUseCase;
+        _updateUseCase = updateUseCase;
+        _removeUseCase = removwUseCase;
     }
 
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<string>>> GetEvents()
+    public async Task<ActionResult<IEnumerable<string>>> GetRoles()
     {
-        var roles = await _unitOfWork.RoleRepository.GetAll().ToAsyncEnumerable().ToArrayAsync();
-
-        return Ok(roles.Select(r => r.Name));
+        var roles = await _getAllUseCase.ExecuteAsync();
+        return Ok(roles);
     }
-
 
     [HttpGet("exists/{name}")]
     public async Task<ActionResult<bool>> Exists(string name)
     {
-        var roles = await _unitOfWork.RoleRepository.GetAllAsync().ToArrayAsync();
-
-        return Ok(roles.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) is not null);
+        var exists = await _existsUseCase.ExecuteAsync(name);
+        return Ok(exists);
     }
 
-
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Post(string name)
     {
-        _unitOfWork.RoleRepository.Add(new Role { Name = name });
-
-        if (!await _unitOfWork.SaveChangesAsync())
-            return BadRequest();
-
-        return NoContent();
+        try
+        {
+            await _createUseCase.ExecuteAsync(name);
+            return NoContent();
+        }
+        catch (ValidationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 
     [HttpPut("rename/{name}")]
+    [Authorize]
     public async Task<IActionResult> Put(string name, string newName)
     {
-        var roles = await _unitOfWork.RoleRepository.GetAllAsync().ToArrayAsync();
-        var role = roles.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-        if (role is null)
-            return NotFound();
-
-        _unitOfWork.RoleRepository.Remove(role.Name);
-        _unitOfWork.RoleRepository.Add(new Role() { Name = newName });
-
-        if (!await _unitOfWork.SaveChangesAsync())
-            return BadRequest();
-
-        return NoContent();
+        try
+        {
+            await _updateUseCase.ExecuteAsync(name, newName);
+            return NoContent();
+        }
+        catch (ValidationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 
 
     [HttpDelete("{name}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> Delete(string name)
     {
-        var roles = await _unitOfWork.RoleRepository.GetAllAsync().ToArrayAsync();
-        var role = roles.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-        if (role is null)
-            return NotFound();
-
-        _unitOfWork.RoleRepository.Remove(role.Name);
-
-        if (!await _unitOfWork.SaveChangesAsync())
-            return BadRequest();
-
-        return NoContent();
+        try
+        {
+            await _removeUseCase.ExecuteAsync(name);
+            return NoContent();
+        }
+        catch (ValidationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 }

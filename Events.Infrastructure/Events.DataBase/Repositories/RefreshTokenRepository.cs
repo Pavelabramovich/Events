@@ -1,4 +1,4 @@
-﻿using Events.Domain.Repositories;
+﻿using Events.Application.Repositories;
 using Events.WebApi.Authentication;
 using Microsoft.EntityFrameworkCore;
 

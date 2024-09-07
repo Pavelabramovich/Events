@@ -1,14 +1,7 @@
 ﻿using Events.DataBase.Repositories;
-using Events.Domain.Repositories;
-using Events.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Events.Application.Repositories;
+using Events.Application;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System.Threading;
 
 
 namespace Events.DataBase;

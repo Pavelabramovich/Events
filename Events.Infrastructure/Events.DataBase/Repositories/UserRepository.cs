@@ -1,7 +1,6 @@
-﻿using Events.Domain.Entities;
-using Events.Domain.Repositories;
+﻿using Events.Domain;
+using Events.Application.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 

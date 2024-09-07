@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore;
 using Events.DataBase.Configuration;
-using Events.Domain.Entities;
+using Events.Domain;
 using Events.WebApi.Authentication;
 
 

@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-using Events.Domain.Entities;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq.Expressions;
 
 

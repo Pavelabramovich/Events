@@ -1,11 +1,5 @@
 ﻿using Events.DataBase.Repositories;
-using Events.Domain;
-using Events.Domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Events.Application;
 
 
 namespace Events.DataBase;
