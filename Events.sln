@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35219.272
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.WebApi", "Events.Infrastructure\Events.WebApi\Events.WebApi.csproj", "{C7E45CC3-9FA1-4192-9E48-5C4F680CD85C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.WebApi", "Events.Presentation\Events.WebApi\Events.WebApi.csproj", "{C7E45CC3-9FA1-4192-9E48-5C4F680CD85C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.Domain", "Events.Entities\Events.Domain.csproj", "{3073974A-2BE4-472D-9177-56901781DB55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.Domain", "Events.Domain\Events.Domain.csproj", "{3073974A-2BE4-472D-9177-56901781DB55}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Events.Infrastructure", "Events.Infrastructure", "{FB95E4A8-BC5D-465A-B44E-93CAF1A2CFEC}"
 EndProject
@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.DataBase", "Events.I
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.Application", "Events.Application\Events.Application.csproj", "{A7417515-6CB3-4950-A00E-FB5CEA604454}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events.Tests", "Events.Tests\Events.Tests.csproj", "{9B5C797B-7991-4C23-B6DD-89F03DF02925}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events.Tests", "Events.Tests\Events.Tests.csproj", "{9B5C797B-7991-4C23-B6DD-89F03DF02925}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Events.Presentation", "Events.Presentation", "{779B69E4-C783-4DDD-85F4-FDC0111936B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,7 +48,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C7E45CC3-9FA1-4192-9E48-5C4F680CD85C} = {FB95E4A8-BC5D-465A-B44E-93CAF1A2CFEC}
+		{C7E45CC3-9FA1-4192-9E48-5C4F680CD85C} = {779B69E4-C783-4DDD-85F4-FDC0111936B0}
 		{661E3686-6359-4209-BC86-E0FE9CC099BC} = {FB95E4A8-BC5D-465A-B44E-93CAF1A2CFEC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

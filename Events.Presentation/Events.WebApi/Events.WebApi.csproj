@@ -26,8 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Events.Entities\Events.Domain.csproj" />
-    <ProjectReference Include="..\Events.DataBase\Events.DataBase.csproj" />
+    <ProjectReference Include="..\..\Events.Domain\Events.Domain.csproj" />
+    <ProjectReference Include="..\..\Events.Infrastructure\Events.DataBase\Events.DataBase.csproj" />
   </ItemGroup>
 
 </Project>

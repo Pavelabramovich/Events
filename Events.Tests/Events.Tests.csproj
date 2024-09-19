@@ -22,9 +22,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Events.Application\Events.Application.csproj" />
-    <ProjectReference Include="..\Events.Entities\Events.Domain.csproj" />
+    <ProjectReference Include="..\Events.Domain\Events.Domain.csproj" />
     <ProjectReference Include="..\Events.Infrastructure\Events.DataBase\Events.DataBase.csproj" />
-    <ProjectReference Include="..\Events.Infrastructure\Events.WebApi\Events.WebApi.csproj" />
+    <ProjectReference Include="..\Events.Presentation\Events.WebApi\Events.WebApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>
