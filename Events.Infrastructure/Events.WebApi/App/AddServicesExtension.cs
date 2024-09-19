@@ -15,33 +15,33 @@ public static class AddServicesExtension
         @this.Services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         @this.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        @this.Services.AddScoped<EventUseCases.GetAll>();
-        @this.Services.AddScoped<EventUseCases.GetById>();
-        @this.Services.AddScoped<EventUseCases.GetByName>();
-        @this.Services.AddScoped<EventUseCases.GetAllWithParticipants>();
-        @this.Services.AddScoped<EventUseCases.GetParticipantsById>();
-        @this.Services.AddScoped<EventUseCases.GetPage>();
-        @this.Services.AddScoped<EventUseCases.Create>();
-        @this.Services.AddScoped<EventUseCases.Update>();
-        @this.Services.AddScoped<EventUseCases.UpdatePaticipation>();
-        @this.Services.AddScoped<EventUseCases.Remove>();
-        @this.Services.AddScoped<EventUseCases.RemoveParticipation>();
+        @this.Services.AddScoped<GetAllEventsUseCase>();
+        @this.Services.AddScoped<GetEventByIdUseCase>();
+        @this.Services.AddScoped<GetEventByNameUseCase>();
+        @this.Services.AddScoped<GetAllEventsWithParticipantsUseCase>();
+        @this.Services.AddScoped<GetParticipantsByEventIdUseCase>();
+        @this.Services.AddScoped<GetEventsPageUseCase>();
+        @this.Services.AddScoped<CreateEventUseCase>();
+        @this.Services.AddScoped<UpdateEventUseCase>();
+        @this.Services.AddScoped<UpdateEventPaticipationUseCase>();
+        @this.Services.AddScoped<RemoveEventUseCase>();
+        @this.Services.AddScoped<RemoveEventParticipationUseCase>();
 
-        @this.Services.AddScoped<RoleUseCases.GetAll>();
-        @this.Services.AddScoped<RoleUseCases.Exists>();
-        @this.Services.AddScoped<RoleUseCases.Create>();
-        @this.Services.AddScoped<RoleUseCases.Update>();
-        @this.Services.AddScoped<RoleUseCases.Remove>();
+        @this.Services.AddScoped<GetAllRolesUseCase>();
+        @this.Services.AddScoped<IsRoleExistsUseCase>();
+        @this.Services.AddScoped<CreateRoleUseCase>();
+        @this.Services.AddScoped<UpdateRoleUseCase>();
+        @this.Services.AddScoped<RemoveRoleUseCase>();
 
-        @this.Services.AddScoped<UserUseCases.GetAll>();
-        @this.Services.AddScoped<UserUseCases.GetAllWithParticipants>();
-        @this.Services.AddScoped<UserUseCases.GetById>();
-        @this.Services.AddScoped<UserUseCases.GetByLogin>();
-        @this.Services.AddScoped<UserUseCases.GetParticipantsById>();
-        @this.Services.AddScoped<UserUseCases.GetPage>();
-        @this.Services.AddScoped<UserUseCases.Create>();
-        @this.Services.AddScoped<UserUseCases.Update>();
-        @this.Services.AddScoped<UserUseCases.Remove>();
+        @this.Services.AddScoped<GetAllUsersUseCase>();
+        @this.Services.AddScoped<GetAllUsersWithParticipationsUseCase>();
+        @this.Services.AddScoped<GetUserByIdUseCase>();
+        @this.Services.AddScoped<GetUserByLoginUseCase>();
+        @this.Services.AddScoped<GetParticipationsByUserIdUseCase>();
+        @this.Services.AddScoped<GetUsersPageUseCase>();
+        @this.Services.AddScoped<CreateUserUseCase>();
+        @this.Services.AddScoped<UpdateUserUseCase>();
+        @this.Services.AddScoped<RemoveUserUseCase>();
 
         @this.Services.AddScoped<AuthenticateUseCase>();
         @this.Services.AddScoped<RefreshUseCase>();

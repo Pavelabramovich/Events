@@ -16,19 +16,19 @@ namespace Events.WebApi.Controllers;
 [ApiController]
 public class RolesController : ControllerBase
 {
-    private readonly RoleUseCases.GetAll _getAllUseCase;
-    private readonly RoleUseCases.Exists _existsUseCase;
-    private readonly RoleUseCases.Create _createUseCase;
-    private readonly RoleUseCases.Update _updateUseCase;
-    private readonly RoleUseCases.Remove _removeUseCase;
+    private readonly GetAllRolesUseCase _getAllUseCase;
+    private readonly IsRoleExistsUseCase _existsUseCase;
+    private readonly CreateRoleUseCase _createUseCase;
+    private readonly UpdateRoleUseCase _updateUseCase;
+    private readonly RemoveRoleUseCase _removeUseCase;
 
 
     public RolesController(
-        RoleUseCases.GetAll getAllUseCase,
-        RoleUseCases.Exists existsUseCase,
-        RoleUseCases.Create createUseCase,
-        RoleUseCases.Update updateUseCase,
-        RoleUseCases.Remove removwUseCase)
+        GetAllRolesUseCase getAllUseCase,
+        IsRoleExistsUseCase existsUseCase,
+        CreateRoleUseCase createUseCase,
+        UpdateRoleUseCase updateUseCase,
+        RemoveRoleUseCase removwUseCase)
     {
         _getAllUseCase = getAllUseCase;
         _existsUseCase = existsUseCase;

@@ -13,30 +13,30 @@ namespace Events.WebApi.Controllers;
 [Route("api/users")]
 public class UsersController : ControllerBase
 {
-    private readonly UserUseCases.GetAll _getAllUseCase;
-    private readonly UserUseCases.GetAllWithParticipants _getAllWithParticipantsUseCase;
-    private readonly UserUseCases.GetById _getByIdUseCase;
-    private readonly UserUseCases.GetByLogin _getByLoginUseCase;
-    private readonly UserUseCases.GetParticipantsById _getParticipantsByIdUseCase;
-    private readonly UserUseCases.GetPage _getPageUseCase;
-    private readonly UserUseCases.Create _createUseCase;
-    private readonly UserUseCases.Update _updateUseCase;
-    private readonly UserUseCases.Remove _removeUseCase;
+    private readonly GetAllUsersUseCase _getAllUseCase;
+    private readonly GetAllUsersWithParticipationsUseCase _getAllWithParticipantsUseCase;
+    private readonly GetUserByIdUseCase _getByIdUseCase;
+    private readonly GetUserByLoginUseCase _getByLoginUseCase;
+    private readonly GetParticipationsByUserIdUseCase _getParticipantsByIdUseCase;
+    private readonly GetUsersPageUseCase _getPageUseCase;
+    private readonly CreateUserUseCase _createUseCase;
+    private readonly UpdateUserUseCase _updateUseCase;
+    private readonly RemoveUserUseCase _removeUseCase;
 
     private readonly AuthenticateUseCase _authenticateUseCase;
     private readonly RefreshUseCase _refreshUseCase;
 
 
     public UsersController(
-        UserUseCases.GetAll getAllUseCase,
-        UserUseCases.GetAllWithParticipants getAllWithParticipantsUseCase,
-        UserUseCases.GetById getByIdUseCase,
-        UserUseCases.GetByLogin getByLoginUseCase,
-        UserUseCases.GetParticipantsById getParticipantsByIdUseCase,
-        UserUseCases.GetPage getPageUseCase,
-        UserUseCases.Create createUseCase,
-        UserUseCases.Update updateUseCase,
-        UserUseCases.Remove removeUseCase,
+        GetAllUsersUseCase getAllUseCase,
+        GetAllUsersWithParticipationsUseCase getAllWithParticipantsUseCase,
+        GetUserByIdUseCase getByIdUseCase,
+        GetUserByLoginUseCase getByLoginUseCase,
+        GetParticipationsByUserIdUseCase getParticipantsByIdUseCase,
+        GetUsersPageUseCase getPageUseCase,
+        CreateUserUseCase createUseCase,
+        UpdateUserUseCase updateUseCase,
+        RemoveUserUseCase removeUseCase,
         
         AuthenticateUseCase authenticateUseCase,
         RefreshUseCase refreshUseCase)

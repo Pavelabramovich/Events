@@ -13,31 +13,31 @@ namespace Events.WebApi.Controllers;
 [Route("api/events")]
 public class EventsController : ControllerBase
 {
-    private readonly EventUseCases.GetAll _getAllUseCase;
-    private readonly EventUseCases.GetById _getByIdUseCase;
-    private readonly EventUseCases.GetByName _getByNameUseCase;
-    private readonly EventUseCases.GetAllWithParticipants _getAllWithParticipantsUseCase;
-    private readonly EventUseCases.GetParticipantsById _getParticipantsByIdUseCase;
-    private readonly EventUseCases.GetPage _getPageUseCase;
-    private readonly EventUseCases.Create _createUseCase;
-    private readonly EventUseCases.Update _updateUseCase;
-    private readonly EventUseCases.UpdatePaticipation _updatePaticipationUseCase;
-    private readonly EventUseCases.Remove _removeUseCase;
-    private readonly EventUseCases.RemoveParticipation _removeParticipationUseCase;
+    private readonly GetAllEventsUseCase _getAllUseCase;
+    private readonly GetEventByIdUseCase _getByIdUseCase;
+    private readonly GetEventByNameUseCase _getByNameUseCase;
+    private readonly GetAllEventsWithParticipantsUseCase _getAllWithParticipantsUseCase;
+    private readonly GetParticipantsByEventIdUseCase _getParticipantsByIdUseCase;
+    private readonly GetEventsPageUseCase _getPageUseCase;
+    private readonly CreateEventUseCase _createUseCase;
+    private readonly UpdateEventUseCase _updateUseCase;
+    private readonly UpdateEventPaticipationUseCase _updatePaticipationUseCase;
+    private readonly RemoveEventUseCase _removeUseCase;
+    private readonly RemoveEventParticipationUseCase _removeParticipationUseCase;
 
 
     public EventsController(
-        EventUseCases.GetAll getAllUseCase,
-        EventUseCases.GetById getByIdUseCase,
-        EventUseCases.GetByName getByNameUseCase,
-        EventUseCases.GetAllWithParticipants getAllWithParticipantsUseCase,
-        EventUseCases.GetParticipantsById getParticipantsByIdUseCase,
-        EventUseCases.GetPage getPageUseCase,
-        EventUseCases.Create createUseCase,
-        EventUseCases.Update updateUseCase,
-        EventUseCases.UpdatePaticipation updatePaticipationUseCase,
-        EventUseCases.Remove removeUseCase,
-        EventUseCases.RemoveParticipation removeParticipationUseCase)
+        GetAllEventsUseCase getAllUseCase,
+        GetEventByIdUseCase getByIdUseCase,
+        GetEventByNameUseCase getByNameUseCase,
+        GetAllEventsWithParticipantsUseCase getAllWithParticipantsUseCase,
+        GetParticipantsByEventIdUseCase getParticipantsByIdUseCase,
+        GetEventsPageUseCase getPageUseCase,
+        CreateEventUseCase createUseCase,
+        UpdateEventUseCase updateUseCase,
+        UpdateEventPaticipationUseCase updatePaticipationUseCase,
+        RemoveEventUseCase removeUseCase,
+        RemoveEventParticipationUseCase removeParticipationUseCase)
     {
         _getAllUseCase = getAllUseCase;
         _getByIdUseCase = getByIdUseCase;
