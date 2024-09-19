@@ -1,5 +1,5 @@
 ﻿
-namespace Events.WebApi.Authentication;
+namespace Events.Application.Dto;
 
 
 public class Tokens

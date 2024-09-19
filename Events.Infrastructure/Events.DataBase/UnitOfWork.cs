@@ -16,6 +16,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly Lazy<IExternalLoginRepository> _externalLoginRepositoryLazy;
     private readonly Lazy<IRoleRepository> _roleRepositoryLazy;
     private readonly Lazy<IClaimRepository> _claimRepositoryLazy;
+    private readonly Lazy<IRefreshTokenRepository> _refreshTokenRepositoryLazy;
 
     protected bool _disposed;
 
@@ -29,6 +30,7 @@ public class UnitOfWork : IUnitOfWork
         _externalLoginRepositoryLazy = new(() => new ExternalLoginRepository(_context));
         _roleRepositoryLazy = new(() => new RoleRepository(_context));
         _claimRepositoryLazy = new(() => new ClaimRepository(_context));
+        _refreshTokenRepositoryLazy = new(() => new RefreshTokenRepository(_context));
     }
 
 
@@ -64,6 +66,13 @@ public class UnitOfWork : IUnitOfWork
     {
         get => !_disposed
             ? _claimRepositoryLazy.Value
+            : throw new ObjectDisposedException(nameof(UnitOfWork), "UnitOfWork is disposed.");
+    }
+
+    public IRefreshTokenRepository RefreshTokenRepository
+    {
+        get => !_disposed
+            ? _refreshTokenRepositoryLazy.Value
             : throw new ObjectDisposedException(nameof(UnitOfWork), "UnitOfWork is disposed.");
     }
 

@@ -11,6 +11,7 @@ public interface IUnitOfWork : IDisposable
     IExternalLoginRepository ExternalLoginRepository { get; }
     IRoleRepository RoleRepository { get; }
     IClaimRepository ClaimRepository { get; }
+    IRefreshTokenRepository RefreshTokenRepository { get; }
 
     bool SaveChanges();
     Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default);

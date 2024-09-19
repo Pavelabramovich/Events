@@ -2,9 +2,6 @@ using System.Text.Json.Serialization;
 using Events.WebApi.App;
 using Events.Application.Dto;
 using Events.WebApi.Extensions;
-using FluentValidation.AspNetCore;
-using FluentValidation;
-using Events.WebApi.Validators;
 
 
 var builder = WebApplication.CreateBuilder(args);

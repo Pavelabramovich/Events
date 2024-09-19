@@ -13,10 +13,7 @@ public static class AddServicesExtension
     public static WebApplicationBuilder AddServices(this WebApplicationBuilder @this)
     {
         @this.Services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
-        @this.Services.AddSingleton<IJwtManagerRepository, JwtManagerRepository>();
-
         @this.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-        @this.Services.AddScoped<IUnitOfWorkWithTokens, UnitOfWorkWithTokens>();
 
         @this.Services.AddScoped<EventUseCases.GetAll>();
         @this.Services.AddScoped<EventUseCases.GetById>();
@@ -46,8 +43,8 @@ public static class AddServicesExtension
         @this.Services.AddScoped<UserUseCases.Update>();
         @this.Services.AddScoped<UserUseCases.Remove>();
 
-        @this.Services.AddScoped<AuthUseCases.Authenticate>();
-        @this.Services.AddScoped<AuthUseCases.Refresh>();
+        @this.Services.AddScoped<AuthenticateUseCase>();
+        @this.Services.AddScoped<RefreshUseCase>();
 
 
         return @this;

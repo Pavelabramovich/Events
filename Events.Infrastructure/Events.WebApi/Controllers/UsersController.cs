@@ -1,19 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using AutoMapper;
 using Events.Application.Dto;
 using Events.WebApi.Authentication;
-using System.Security.Claims;
-using Events.DataBase;
-using Events.Domain;
-using Events.Application.UseCases;
-
-using DomainClaim = Events.Domain.Claim;
-using SystemClaim = System.Security.Claims.Claim;
 using System.ComponentModel.DataAnnotations;
-using System;
 using Microsoft.AspNetCore.Authorization;
-
+using Events.Application.UseCases;
 
 
 namespace Events.WebApi.Controllers;
@@ -33,8 +23,8 @@ public class UsersController : ControllerBase
     private readonly UserUseCases.Update _updateUseCase;
     private readonly UserUseCases.Remove _removeUseCase;
 
-    private readonly AuthUseCases.Authenticate _authenticateUseCase;
-    private readonly AuthUseCases.Refresh _refreshUseCase;
+    private readonly AuthenticateUseCase _authenticateUseCase;
+    private readonly RefreshUseCase _refreshUseCase;
 
 
     public UsersController(
@@ -48,8 +38,8 @@ public class UsersController : ControllerBase
         UserUseCases.Update updateUseCase,
         UserUseCases.Remove removeUseCase,
         
-        AuthUseCases.Authenticate authenticateUseCase,
-        AuthUseCases.Refresh refreshUseCase)
+        AuthenticateUseCase authenticateUseCase,
+        RefreshUseCase refreshUseCase)
     {
         _getAllUseCase = getAllUseCase;
         _getAllWithParticipantsUseCase = getAllWithParticipantsUseCase;

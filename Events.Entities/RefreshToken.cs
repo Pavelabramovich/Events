@@ -1,10 +1,8 @@
-﻿using Events.Domain;
+﻿
+namespace Events.Domain;
 
 
-namespace Events.WebApi.Authentication;
-
-
-public class RefreshToken : IEntity<int>
+public record RefreshToken : IEntity<int>
 {
     public int UserId { get; init; } = default!;
     public User User { get; init; } = default!;

@@ -1,5 +1,5 @@
 ﻿using Events.DataBase.Extensions;
-using Events.WebApi.Authentication;
+using Events.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

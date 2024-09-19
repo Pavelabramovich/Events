@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Events.DataBase.Configuration;
 using Events.Domain;
-using Events.WebApi.Authentication;
 
 
 namespace Events.DataBase;

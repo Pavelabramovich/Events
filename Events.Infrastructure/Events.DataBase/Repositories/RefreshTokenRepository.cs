@@ -1,20 +1,9 @@
 ﻿using Events.Application.Repositories;
-using Events.WebApi.Authentication;
+using Events.Domain;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace Events.DataBase.Repositories;
-
-
-public interface IRefreshTokenRepository : IRepository<RefreshToken>
-{
-
-    RefreshToken? GetSavedRefreshToken(int userId, string refreshToken);
-    Task<RefreshToken?> GetSavedRefreshTokedAsync(int userId, string refreshToken, CancellationToken cancellationToken = default);
-
-    void UpsertUserRefreshToken(RefreshToken refreshToken);
-    void DeleteUserRefreshToken(int userId, string refreshToken);
-}
 
 
 internal class RefreshTokenRepository : Repository<RefreshToken>, IRefreshTokenRepository
