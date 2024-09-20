@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
 using Events.Application.Dto;
 using Events.Domain;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 using DomainClaim = Events.Domain.Claim;
 using SystemClaim = System.Security.Claims.Claim;
@@ -15,9 +12,18 @@ using SystemClaim = System.Security.Claims.Claim;
 namespace Events.Application.UseCases;
 
 
-public class AuthenticateUseCase(IUnitOfWork unitOfWork, IMapper mapper)
-    : FuncUseCase<UserLoginDto, Tokens>(unitOfWork, mapper)
+public class AuthenticateUseCase : FuncUseCase<UserLoginDto, Tokens>
 {
+    private readonly JwtTokenManager _jwtTokenManager;
+
+
+    public AuthenticateUseCase(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
+        : base(unitOfWork, mapper)
+    {
+        _jwtTokenManager = new JwtTokenManager(configuration);
+    }
+
+
     public override Tokens Execute(UserLoginDto userLoginDto)
     {
         throw new NotImplementedException();
@@ -40,7 +46,7 @@ public class AuthenticateUseCase(IUnitOfWork unitOfWork, IMapper mapper)
 
         SystemClaim[] claims = [.. claimsFromRoles, .. claimsFromClaims];
 
-        var tokens = JwtTokenManager.GenerateToken(user.Id, claims);
+        var tokens = _jwtTokenManager.GenerateToken(user.Id, claims);
 
         if (tokens is null)
             throw new UnauthorizedAccessException();
@@ -60,4 +66,3 @@ public class AuthenticateUseCase(IUnitOfWork unitOfWork, IMapper mapper)
         return tokens;
     }
 }
-

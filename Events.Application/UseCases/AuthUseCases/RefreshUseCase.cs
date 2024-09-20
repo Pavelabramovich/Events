@@ -1,22 +1,26 @@
 ﻿using AutoMapper;
 using Events.Application.Dto;
 using Events.Domain;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-
-using DomainClaim = Events.Domain.Claim;
-using SystemClaim = System.Security.Claims.Claim;
 
 
 namespace Events.Application.UseCases;
 
 
-public class RefreshUseCase(IUnitOfWork unitOfWork, IMapper mapper) : FuncUseCase<Tokens, Tokens>(unitOfWork, mapper)
+public class RefreshUseCase : FuncUseCase<Tokens, Tokens>
 {
+    private readonly JwtTokenManager _jwtTokenManager;
+
+
+    public RefreshUseCase(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
+        : base(unitOfWork, mapper)
+    {
+        _jwtTokenManager = new JwtTokenManager(configuration);
+    }
+
+
     public override Tokens Execute(Tokens tokens)
     {
         throw new NotImplementedException();
@@ -24,19 +28,19 @@ public class RefreshUseCase(IUnitOfWork unitOfWork, IMapper mapper) : FuncUseCas
 
     public override async Task<Tokens> ExecuteAsync(Tokens tokens, CancellationToken cancellationToken = default)
     {
-        var principal = JwtTokenManager.GetPrincipalFromExpiredToken(tokens.AccessToken);
+        var principal = _jwtTokenManager.GetPrincipalFromExpiredToken(tokens.AccessToken);
 
         var claims = principal.Claims;
 
         var userIdClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!;
         int userId = int.Parse(userIdClaim.Value);
 
-        var savedRefreshToken = await _unitOfWork.RefreshTokenRepository.GetSavedRefreshTokedAsync(userId, tokens.RefreshToken);
+        var savedRefreshToken = await _unitOfWork.RefreshTokenRepository.GetSavedRefreshTokedAsync(userId, tokens.RefreshToken, cancellationToken);
 
         if (savedRefreshToken?.Value != tokens.RefreshToken)
             throw new UnauthorizedAccessException();
 
-        var newTokens = JwtTokenManager.GenerateRefreshToken(userId, claims.ToArray());
+        var newTokens = _jwtTokenManager.GenerateRefreshToken(userId, claims.ToArray());
 
         if (newTokens is null)
             throw new UnauthorizedAccessException();

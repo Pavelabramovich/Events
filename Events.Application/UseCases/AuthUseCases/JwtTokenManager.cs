@@ -1,4 +1,5 @@
 ﻿using Events.Application.Dto;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -12,23 +13,30 @@ using SystemClaim = System.Security.Claims.Claim;
 namespace Events.Application.UseCases;
 
 
-internal static class JwtTokenManager
+internal class JwtTokenManager
 {
-    private static readonly string _jwtKey = "This is my secret key for jwt refresh token";
+    private readonly string _jwtKey;
 
 
-    public static Tokens? GenerateToken(int userId, params SystemClaim[] additionalClaims)
+    public JwtTokenManager(IConfiguration configuration)
+    {
+        _jwtKey = configuration["JWT:Key"]
+            ?? throw new ArgumentException("Configuration not contain JWT:Key section for encrypting jwt", nameof(configuration));
+    }
+
+
+    public Tokens? GenerateToken(int userId, params SystemClaim[] additionalClaims)
     {
         return GenerateJWTTokens(userId, additionalClaims);
     }
 
-    public static Tokens? GenerateRefreshToken(int userId, params SystemClaim[] additionalClaims)
+    public Tokens? GenerateRefreshToken(int userId, params SystemClaim[] additionalClaims)
     {
         return GenerateJWTTokens(userId, additionalClaims);
     }
 
 
-    public static Tokens? GenerateJWTTokens(int userId, params SystemClaim[] additionalClaims)
+    public Tokens? GenerateJWTTokens(int userId, params SystemClaim[] additionalClaims)
     {
         try
         {
@@ -50,23 +58,13 @@ internal static class JwtTokenManager
 
             return new Tokens() { AccessToken = tokenHandler.WriteToken(token), RefreshToken = refreshToken };
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
             return null;
         }
     }
 
-    public static string GenerateRefreshToken()
-    {
-        var randomNumber = new byte[32];
-
-        using var rng = RandomNumberGenerator.Create();
-
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
-    }
-
-    public static ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+    public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
         var key = Encoding.UTF8.GetBytes(_jwtKey);
 
@@ -90,5 +88,15 @@ internal static class JwtTokenManager
         }
 
         return principal;
+    }
+
+    public static string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+
+        using var rng = RandomNumberGenerator.Create();
+
+        rng.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
     }
 }
