@@ -23,7 +23,7 @@ public static class AddServicesExtension
         @this.Services.AddScoped<GetEventsPageUseCase>();
         @this.Services.AddScoped<CreateEventUseCase>();
         @this.Services.AddScoped<UpdateEventUseCase>();
-        @this.Services.AddScoped<UpdateEventPaticipationUseCase>();
+        @this.Services.AddScoped<UpdateEventParticipationUseCase>();
         @this.Services.AddScoped<RemoveEventUseCase>();
         @this.Services.AddScoped<RemoveEventParticipationUseCase>();
 

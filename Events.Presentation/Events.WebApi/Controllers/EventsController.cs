@@ -16,40 +16,31 @@ public class EventsController : ControllerBase
     private readonly GetAllEventsUseCase _getAllUseCase;
     private readonly GetEventByIdUseCase _getByIdUseCase;
     private readonly GetEventByNameUseCase _getByNameUseCase;
-    private readonly GetAllEventsWithParticipantsUseCase _getAllWithParticipantsUseCase;
-    private readonly GetParticipantsByEventIdUseCase _getParticipantsByIdUseCase;
     private readonly GetEventsPageUseCase _getPageUseCase;
     private readonly CreateEventUseCase _createUseCase;
     private readonly UpdateEventUseCase _updateUseCase;
-    private readonly UpdateEventPaticipationUseCase _updatePaticipationUseCase;
+    
     private readonly RemoveEventUseCase _removeUseCase;
-    private readonly RemoveEventParticipationUseCase _removeParticipationUseCase;
 
 
     public EventsController(
         GetAllEventsUseCase getAllUseCase,
         GetEventByIdUseCase getByIdUseCase,
         GetEventByNameUseCase getByNameUseCase,
-        GetAllEventsWithParticipantsUseCase getAllWithParticipantsUseCase,
-        GetParticipantsByEventIdUseCase getParticipantsByIdUseCase,
         GetEventsPageUseCase getPageUseCase,
         CreateEventUseCase createUseCase,
         UpdateEventUseCase updateUseCase,
-        UpdateEventPaticipationUseCase updatePaticipationUseCase,
-        RemoveEventUseCase removeUseCase,
-        RemoveEventParticipationUseCase removeParticipationUseCase)
+        RemoveEventUseCase removeUseCase)
     {
         _getAllUseCase = getAllUseCase;
         _getByIdUseCase = getByIdUseCase;
         _getByNameUseCase = getByNameUseCase;
-        _getAllWithParticipantsUseCase = getAllWithParticipantsUseCase;
-        _getParticipantsByIdUseCase = getParticipantsByIdUseCase;
+
         _getPageUseCase = getPageUseCase;
         _createUseCase = createUseCase;
         _updateUseCase = updateUseCase;
-        _updatePaticipationUseCase = updatePaticipationUseCase;
+        
         _removeUseCase = removeUseCase;
-        _removeParticipationUseCase = removeParticipationUseCase;
     }
 
 
@@ -57,13 +48,6 @@ public class EventsController : ControllerBase
     public async Task<ActionResult<IEnumerable<EventWithoutParticipantsDto>>> GetEvents()
     {
         var events = await _getAllUseCase.ExecuteAsync();
-        return Ok(events);
-    }
-
-    [HttpGet("participanst")]
-    public async Task<ActionResult<IEnumerable<EventWithParticipantsDto>>> GetEventsWithParticipants()
-    {
-        var events = await _getAllWithParticipantsUseCase.ExecuteAsync();
         return Ok(events);
     }
 
@@ -82,15 +66,6 @@ public class EventsController : ControllerBase
         var events = await _getPageUseCase.ExecuteAsync(pageNum, pageSize);
         return Ok(events);
     }
-
-
-    [HttpGet("{id:int}/participants")]
-    public async Task<ActionResult<IEnumerable<EventWithParticipantsDto>>> GetEventParticipants(int id)
-    {
-        var participants = await _getParticipantsByIdUseCase.ExecuteAsync(id);
-        return Ok(participants);
-    }
-
 
     [HttpPost]
     [Authorize]
@@ -114,40 +89,6 @@ public class EventsController : ControllerBase
 
         return CreatedAtAction(nameof(GetEvent), new { id = newEvent!.Id }, newEvent);
     }
-
-
-    [HttpPost("{eventId:int}/participants/{userId:int}")]
-    [Authorize]
-    public async Task<IActionResult> PostEventParticipant(int eventId, int userId)
-    {
-        try
-        {
-            await _updatePaticipationUseCase.ExecuteAsync(eventId, userId);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-
-        return NoContent();
-    }
-
-    [HttpDelete("{eventId:int}/participants/{userId:int}")]
-    [Authorize("Admin")]
-    public async Task<IActionResult> DeleteEventParticipant(int eventId, int userId)
-    {
-        try
-        {
-            await _removeParticipationUseCase.ExecuteAsync(eventId, userId);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-
-        return NoContent();
-    }
-
 
     [HttpPut]
     [Authorize]

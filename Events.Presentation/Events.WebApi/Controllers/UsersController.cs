@@ -13,11 +13,9 @@ namespace Events.WebApi.Controllers;
 [Route("api/users")]
 public class UsersController : ControllerBase
 {
-    private readonly GetAllUsersUseCase _getAllUseCase;
-    private readonly GetAllUsersWithParticipationsUseCase _getAllWithParticipantsUseCase;
+    private readonly GetAllUsersUseCase _getAllUseCase; 
     private readonly GetUserByIdUseCase _getByIdUseCase;
     private readonly GetUserByLoginUseCase _getByLoginUseCase;
-    private readonly GetParticipationsByUserIdUseCase _getParticipantsByIdUseCase;
     private readonly GetUsersPageUseCase _getPageUseCase;
     private readonly CreateUserUseCase _createUseCase;
     private readonly UpdateUserUseCase _updateUseCase;
@@ -29,10 +27,10 @@ public class UsersController : ControllerBase
 
     public UsersController(
         GetAllUsersUseCase getAllUseCase,
-        GetAllUsersWithParticipationsUseCase getAllWithParticipantsUseCase,
+        
         GetUserByIdUseCase getByIdUseCase,
         GetUserByLoginUseCase getByLoginUseCase,
-        GetParticipationsByUserIdUseCase getParticipantsByIdUseCase,
+        
         GetUsersPageUseCase getPageUseCase,
         CreateUserUseCase createUseCase,
         UpdateUserUseCase updateUseCase,
@@ -42,10 +40,8 @@ public class UsersController : ControllerBase
         RefreshUseCase refreshUseCase)
     {
         _getAllUseCase = getAllUseCase;
-        _getAllWithParticipantsUseCase = getAllWithParticipantsUseCase;
         _getByIdUseCase = getByIdUseCase;
         _getByLoginUseCase = getByLoginUseCase;
-        _getParticipantsByIdUseCase = getParticipantsByIdUseCase;
         _getPageUseCase = getPageUseCase;
         _createUseCase = createUseCase;
         _updateUseCase = updateUseCase;
@@ -63,13 +59,6 @@ public class UsersController : ControllerBase
         return Ok(users);
     }
 
-    [HttpGet("participants")]
-    public async Task<ActionResult<IEnumerable<UserWithParticipantsDto>>> GetUsersWithParticipants()
-    {
-        var users = await _getAllWithParticipantsUseCase.ExecuteAsync();
-        return Ok(users);
-    }
-
     [HttpGet("{id:int}")]
     public async Task<ActionResult<UserWithoutParticipantsDto>> GetUser(int id)
     {
@@ -81,20 +70,12 @@ public class UsersController : ControllerBase
         return user;
     }
 
-    [HttpGet("{id:int}/participants")]
-    public async Task<ActionResult<IEnumerable<UserWithParticipantsDto>>> GetUserParticipants(int id)
-    {
-        var participants = await _getParticipantsByIdUseCase.ExecuteAsync(id);
-        return Ok(participants);
-    }
-
     [HttpGet("page/{pageNum:int}-of-{pageSize:int}")]
     public async Task<ActionResult<IEnumerable<UserWithoutParticipantsDto>>> GetUsersPage(int pageNum, int pageSize)
     {
         var eventsPage = await _getPageUseCase.ExecuteAsync(pageNum, pageSize);
         return Ok(eventsPage);
     }
-
 
     [HttpPost]
     [Authorize]

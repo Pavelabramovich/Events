@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Events.Application.UseCases;
 
 
-public class UpdateEventPaticipationUseCase(IUnitOfWork unitOfWork, IMapper mapper) : ActionUseCase<int, int>(unitOfWork, mapper)
+public class UpdateEventParticipationUseCase(IUnitOfWork unitOfWork, IMapper mapper) : ActionUseCase<int, int>(unitOfWork, mapper)
 {
     public override void Execute(int eventId, int userId)
     {
