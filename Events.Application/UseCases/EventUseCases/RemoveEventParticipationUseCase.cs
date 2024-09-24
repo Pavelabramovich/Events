@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Events.Application.Exceptions;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -9,18 +10,32 @@ public class RemoveEventParticipationUseCase(IUnitOfWork unitOfWork, IMapper map
 {
     public override void Execute(int eventId, int userId)
     {
-        _unitOfWork.EventRepository.RemoveParticipant(eventId, userId);
-
+        try
+        {
+            _unitOfWork.EventRepository.RemoveParticipant(eventId, userId);
+        }
+        catch (ArgumentException exception)
+        {
+            throw new EntityNotFoundException(exception.Message, exception);
+        }
+        
         if (!_unitOfWork.SaveChanges())
-            throw new ValidationException("Internal error");
+            throw new DataSavingException();
     }
 
     public override async Task ExecuteAsync(int eventId, int userId, CancellationToken cancellationToken = default)
     {
-        await _unitOfWork.EventRepository.RemoveParticipantAsync(eventId, userId, cancellationToken);
+        try
+        {
+            await _unitOfWork.EventRepository.RemoveParticipantAsync(eventId, userId, cancellationToken);
+        }
+        catch (ArgumentException exception)
+        {
+            throw new EntityNotFoundException(exception.Message, exception);
+        }
 
         if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new ValidationException("Internal error");
+            throw new DataSavingException();
     }
 }
 

@@ -7,6 +7,7 @@ using System.Data;
 using Events.Application.UseCases;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
+using Events.Application.Exceptions;
 
 
 namespace Events.WebApi.Controllers;
@@ -61,9 +62,9 @@ public class RolesController : ControllerBase
             await _createUseCase.ExecuteAsync(name);
             return NoContent();
         }
-        catch (ValidationException exception)
+        catch (DataSavingException)
         {
-            return BadRequest(exception.Message);
+            return BadRequest();
         }
     }
 
@@ -76,9 +77,13 @@ public class RolesController : ControllerBase
             await _updateUseCase.ExecuteAsync(name, newName);
             return NoContent();
         }
-        catch (ValidationException exception)
+        catch (EntityNotFoundException notFoundException)
         {
-            return BadRequest(exception.Message);
+            return NotFound(notFoundException.Message);
+        }
+        catch (DataSavingException)
+        {
+            return BadRequest();
         }
     }
 
@@ -92,9 +97,13 @@ public class RolesController : ControllerBase
             await _removeUseCase.ExecuteAsync(name);
             return NoContent();
         }
-        catch (ValidationException exception)
+        catch (EntityNotFoundException notFoundException)
         {
-            return BadRequest(exception.Message);
+            return NotFound(notFoundException.Message);
+        }
+        catch (DataSavingException)
+        {
+            return BadRequest();
         }
     }
 }

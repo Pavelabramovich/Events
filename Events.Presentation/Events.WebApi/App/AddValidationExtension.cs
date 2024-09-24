@@ -10,7 +10,6 @@ public static class AddValidationExtension
 {
     public static WebApplicationBuilder AddValidation(this WebApplicationBuilder @this)
     {
-        @this.Services.AddFluentValidationAutoValidation();
         @this.Services.AddValidatorsFromAssemblyContaining<UserLoginDtoValidator>();
 
         return @this;

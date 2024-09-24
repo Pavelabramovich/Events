@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Events.Application.Exceptions;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -18,12 +19,12 @@ public class RemoveRoleUseCase(IUnitOfWork unitOfWork, IMapper mapper) : ActionU
         var role = roles.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
         if (role is null)
-            throw new ValidationException();
+            throw new EntityNotFoundException($"Role with name {name.ToLower()} is not found.");
 
         _unitOfWork.RoleRepository.Remove(role.Name);
 
         if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new ValidationException("Internal error");
+            throw new DataSavingException();
     }
 }
 

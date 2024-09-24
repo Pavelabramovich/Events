@@ -22,7 +22,7 @@ internal class EventsContext : DbContext
 
     public EventsContext(bool hasData = true)
         : this(new DbContextOptionsBuilder<EventsContext>()
-              .UseNpgsql("Server=localhost;Port=5432;User Id=postgres;Password=NotSqlite;Database=events;Include Error Detail = true;").Options, hasData)
+            .UseNpgsql("Server=localhost;Port=5432;User Id=postgres;Password=NotSqlite;Database=events;Include Error Detail = true;").Options, hasData)
     { }
 
 

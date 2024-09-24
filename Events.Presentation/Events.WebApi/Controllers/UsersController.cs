@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Events.Application.Dto;
 using Events.WebApi.Authentication;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Events.Application.UseCases;
+using Events.Application.Exceptions;
+using FluentValidation;
 
 
 namespace Events.WebApi.Controllers;
@@ -81,11 +82,6 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<ActionResult<UserWithParticipantsDto>> PostUser(UserCreatingDto userDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         try 
         { 
             await _createUseCase.ExecuteAsync(userDto);
@@ -97,17 +93,16 @@ public class UsersController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
+        catch (DataSavingException)
+        {
+            return BadRequest();
+        }
     }
 
     [HttpPut]
     [Authorize]
     public async Task<IActionResult> PutUser(UserWithoutParticipantsDto userDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         try
         {
             await _updateUseCase.ExecuteAsync(userDto);
@@ -116,6 +111,14 @@ public class UsersController : ControllerBase
         catch (ValidationException exception)
         {
             return BadRequest(exception.Message);
+        }
+        catch (EntityNotFoundException notFoundException)
+        {
+            return NotFound(notFoundException.Message);
+        }
+        catch (DataSavingException)
+        {
+            return BadRequest();
         }
     }
 
@@ -128,9 +131,9 @@ public class UsersController : ControllerBase
             await _removeUseCase.ExecuteAsync(id);
             return NoContent();
         }
-        catch (ValidationException exception)
+        catch (DataSavingException)
         {
-            return BadRequest(exception.Message);
+            return BadRequest();
         }
     }
 
@@ -138,11 +141,6 @@ public class UsersController : ControllerBase
     [HttpPost("authenticate-user")]
     public async Task<IActionResult> AuthenticateAsync(UserLoginDto userLoginDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         try
         {
             var newTokens = await _authenticateUseCase.ExecuteAsync(userLoginDto);
@@ -152,9 +150,9 @@ public class UsersController : ControllerBase
         {
             return Unauthorized();
         }
-        catch (ValidationException exception)
+        catch (DataSavingException)
         {
-            return BadRequest(exception.Message);
+            return BadRequest();
         }
     }
 
@@ -170,9 +168,9 @@ public class UsersController : ControllerBase
         {
             return Unauthorized();
         }
-        catch (ValidationException exception)
+        catch (DataSavingException)
         {
-            return BadRequest(exception.Message);
+            return BadRequest();
         }
     }
 }

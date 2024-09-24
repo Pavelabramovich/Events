@@ -8,17 +8,17 @@ using System.Threading.Tasks;
 namespace Events.Application.Exceptions;
 
 
-public class CreatingException : Exception
+public class DataSavingException : Exception
 {
-    public CreatingException()
+    public DataSavingException()
         : base()
     { }
 
-    public CreatingException(string message)
+    public DataSavingException(string message)
         : base(message)
     { }
 
-    public CreatingException(string message, Exception innerException)
+    public DataSavingException(string message, Exception innerException)
         : base(message, innerException)
     { }
 }

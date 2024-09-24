@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using System.ComponentModel.DataAnnotations;
+using Events.Application.Exceptions;
 
 
 namespace Events.Application.UseCases;
@@ -12,7 +12,7 @@ public class RemoveUserUseCase(IUnitOfWork unitOfWork, IMapper mapper) : ActionU
         _unitOfWork.UserRepository.Remove(id);
 
         if (!_unitOfWork.SaveChanges())
-            throw new ValidationException("Internal error");
+            throw new DataSavingException();
     }
 
     public override async Task ExecuteAsync(int id, CancellationToken cancellationToken = default)
@@ -20,6 +20,6 @@ public class RemoveUserUseCase(IUnitOfWork unitOfWork, IMapper mapper) : ActionU
         _unitOfWork.UserRepository.Remove(id);
 
         if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new ValidationException("Internal error");
+            throw new DataSavingException();
     }
 }

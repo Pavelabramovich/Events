@@ -1,4 +1,5 @@
 ﻿using Events.Application.Dto;
+using Events.Application.Exceptions;
 using Events.Application.UseCases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -74,9 +75,13 @@ public class ParticipationsController : ControllerBase
         {
             await _updatePaticipationUseCase.ExecuteAsync(eventId, userId);
         }
-        catch (ValidationException exception)
+        catch (EntityNotFoundException notFoundException)
         {
-            return BadRequest(exception.Message);
+            return NotFound(notFoundException.Message);
+        }
+        catch (DataSavingException)
+        {
+            return BadRequest();
         }
 
         return NoContent();
@@ -90,9 +95,13 @@ public class ParticipationsController : ControllerBase
         {
             await _removeParticipationUseCase.ExecuteAsync(eventId, userId);
         }
-        catch (ValidationException exception)
+        catch (EntityNotFoundException notFoundException)
         {
-            return BadRequest(exception.Message);
+            return NotFound(notFoundException.Message);
+        }
+        catch (DataSavingException)
+        {
+            return BadRequest();
         }
 
         return NoContent();

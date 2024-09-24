@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Events.Application.Exceptions;
 using Events.Domain;
 using System.ComponentModel.DataAnnotations;
 
@@ -19,12 +20,12 @@ public class UpdateRoleUseCase(IUnitOfWork unitOfWork, IMapper mapper) : ActionU
         var role = roles.FirstOrDefault(r => r.Name.Equals(oldName, StringComparison.OrdinalIgnoreCase));
 
         if (role is null)
-            throw new ValidationException();
+            throw new EntityNotFoundException($"Role with name {oldName.ToLower()} is not found.");
 
         _unitOfWork.RoleRepository.Remove(role.Name);
         _unitOfWork.RoleRepository.Add(new Role() { Name = newName });
 
         if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new ValidationException("Internal error");
+            throw new DataSavingException();
     }
 }

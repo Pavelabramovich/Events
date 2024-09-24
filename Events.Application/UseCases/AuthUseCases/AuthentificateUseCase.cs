@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Events.Application.Dto;
+using Events.Application.Exceptions;
 using Events.Domain;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
@@ -61,7 +62,7 @@ public class AuthenticateUseCase : FuncUseCase<UserLoginDto, Tokens>
         _unitOfWork.RefreshTokenRepository.UpsertUserRefreshToken(refreshToken);
 
         if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new ValidationException();
+            throw new DataSavingException();
 
         return tokens;
     }

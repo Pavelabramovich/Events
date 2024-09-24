@@ -2,8 +2,9 @@
 using Events.Domain;
 using Events.Application.Dto;
 using Events.Application.UseCases;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
+using Events.Application.Exceptions;
+using FluentValidation;
 
 
 namespace Events.WebApi.Controllers;
@@ -54,10 +55,14 @@ public class EventsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<EventWithoutParticipantsDto>> GetEvent(int id)
     {
-        var @event = await _getByIdUseCase.ExecuteAsync(id);
-
-        return @event 
-            ?? throw new ValidationException();
+        try
+        {
+            return await _getByIdUseCase.ExecuteAsync(id);
+        }
+        catch (EntityNotFoundException notFoundException)
+        {
+            return NotFound(notFoundException.Message);
+        }
     }
 
     [HttpGet("page/{pageNum:int}-of-{pageSize:int}")]
@@ -71,18 +76,17 @@ public class EventsController : ControllerBase
     [Authorize]
     public async Task<ActionResult<Event>> PostEvent(EventCreatingDto eventDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         try
         {
             await _createUseCase.ExecuteAsync(eventDto);
         }
-        catch (ValidationException exception)
+        catch (ValidationException validationException)
         {
-            return BadRequest(exception.Message);
+            return BadRequest(validationException.Message);
+        }
+        catch (DataSavingException)
+        {
+            return BadRequest();
         }
 
         var newEvent = await _getByNameUseCase.ExecuteAsync(eventDto.Name);
@@ -94,18 +98,21 @@ public class EventsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> PutEvent(EventWithoutParticipantsDto eventDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         try
         {
             await _updateUseCase.ExecuteAsync(eventDto); 
         }
-        catch (ValidationException exception)
+        catch (ValidationException validationException)
         {
-            return BadRequest(exception.Message);
+            return BadRequest(validationException.Message);
+        }
+        catch (EntityNotFoundException notFoundException)
+        {
+            return NotFound(notFoundException.Message);
+        }
+        catch (DataSavingException)
+        {
+            return BadRequest();
         }
 
         return NoContent();
@@ -119,9 +126,13 @@ public class EventsController : ControllerBase
         {
             await _removeUseCase.ExecuteAsync(id);
         }
-        catch (ValidationException exception)
+        catch (EntityNotFoundException notFoundException)
         {
-            return BadRequest(exception.Message);
+            return NotFound(notFoundException.Message);
+        }
+        catch (DataSavingException)
+        {
+            return BadRequest();
         }
 
         return NoContent();
