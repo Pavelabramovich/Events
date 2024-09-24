@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Events.Application.Dto;
 using Events.Application.Exceptions;
+using Events.Domain;
 
 
 namespace Events.Application.UseCases;

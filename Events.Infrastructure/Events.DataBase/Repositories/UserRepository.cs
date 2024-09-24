@@ -1,5 +1,5 @@
-﻿using Events.Domain;
-using Events.Application.Repositories;
+﻿using Events.Domain.Entities;
+using Events.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 

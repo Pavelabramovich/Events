@@ -4,6 +4,7 @@ using Microsoft.Data.Sqlite;
 using Events.Domain;
 using Events.DataBase.Repositories;
 using FluentAssertions.Execution;
+using Events.Domain.Entities;
 
 
 namespace Events.Tests.RepositoriesTests;
@@ -11,7 +12,7 @@ namespace Events.Tests.RepositoriesTests;
 
 public class Test_Repository : IDisposable
 {
-    private SqliteConnection _fakeConnection;
+    private readonly SqliteConnection _fakeConnection;
 
 
     public Test_Repository()

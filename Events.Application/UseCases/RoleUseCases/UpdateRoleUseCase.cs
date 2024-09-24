@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Events.Application.Exceptions;
 using Events.Domain;
+using Events.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
 

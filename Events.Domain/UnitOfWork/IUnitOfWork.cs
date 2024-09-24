@@ -1,7 +1,7 @@
-﻿using Events.Application.Repositories;
+﻿using Events.Domain.Repositories;
 
 
-namespace Events.Application;
+namespace Events.Domain;
 
 
 public interface IUnitOfWork : IDisposable

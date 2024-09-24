@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Events.DataBase.Configuration;
 using Events.Domain;
+using Events.Domain.Entities;
 
 
 namespace Events.DataBase;

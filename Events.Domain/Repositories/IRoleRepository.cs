@@ -1,7 +1,7 @@
-﻿using Events.Domain;
+﻿using Events.Domain.Entities;
 
 
-namespace Events.Application.Repositories;
+namespace Events.Domain.Repositories;
 
 
 public interface IRoleRepository : IRepository<Role>

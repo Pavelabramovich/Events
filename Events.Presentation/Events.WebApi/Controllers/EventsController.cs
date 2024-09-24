@@ -5,6 +5,7 @@ using Events.Application.UseCases;
 using Microsoft.AspNetCore.Authorization;
 using Events.Application.Exceptions;
 using FluentValidation;
+using Events.Domain.Entities;
 
 
 namespace Events.WebApi.Controllers;

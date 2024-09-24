@@ -157,7 +157,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> Refresh(Tokens tokens)
+    public async Task<IActionResult> Refresh(TokensDto tokens)
     {
         try
         {

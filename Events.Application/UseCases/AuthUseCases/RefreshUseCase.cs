@@ -2,6 +2,7 @@
 using Events.Application.Dto;
 using Events.Application.Exceptions;
 using Events.Domain;
+using Events.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
@@ -10,7 +11,7 @@ using System.Security.Claims;
 namespace Events.Application.UseCases;
 
 
-public class RefreshUseCase : FuncUseCase<Tokens, Tokens>
+public class RefreshUseCase : FuncUseCase<TokensDto, TokensDto>
 {
     private readonly JwtTokenManager _jwtTokenManager;
 
@@ -22,12 +23,12 @@ public class RefreshUseCase : FuncUseCase<Tokens, Tokens>
     }
 
 
-    public override Tokens Execute(Tokens tokens)
+    public override TokensDto Execute(TokensDto tokens)
     {
         throw new NotImplementedException();
     }
 
-    public override async Task<Tokens> ExecuteAsync(Tokens tokens, CancellationToken cancellationToken = default)
+    public override async Task<TokensDto> ExecuteAsync(TokensDto tokens, CancellationToken cancellationToken = default)
     {
         var principal = _jwtTokenManager.GetPrincipalFromExpiredToken(tokens.AccessToken);
 

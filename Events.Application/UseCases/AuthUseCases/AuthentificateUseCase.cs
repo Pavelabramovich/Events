@@ -2,18 +2,19 @@
 using Events.Application.Dto;
 using Events.Application.Exceptions;
 using Events.Domain;
+using Events.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
-using DomainClaim = Events.Domain.Claim;
+using DomainClaim = Events.Domain.Entities.Claim;
 using SystemClaim = System.Security.Claims.Claim;
 
 
 namespace Events.Application.UseCases;
 
 
-public class AuthenticateUseCase : FuncUseCase<UserLoginDto, Tokens>
+public class AuthenticateUseCase : FuncUseCase<UserLoginDto, TokensDto>
 {
     private readonly JwtTokenManager _jwtTokenManager;
 
@@ -25,12 +26,12 @@ public class AuthenticateUseCase : FuncUseCase<UserLoginDto, Tokens>
     }
 
 
-    public override Tokens Execute(UserLoginDto userLoginDto)
+    public override TokensDto Execute(UserLoginDto userLoginDto)
     {
         throw new NotImplementedException();
     }
 
-    public override async Task<Tokens> ExecuteAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
+    public override async Task<TokensDto> ExecuteAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
     {
         bool isUserValid = await _unitOfWork.UserRepository.AuthenticateAsync(userLoginDto.Login, userLoginDto.HashedPassword);
 

@@ -1,4 +1,4 @@
-﻿using Events.Domain;
+﻿using Events.Domain.Entities;
 
 
 namespace Events.Application.Dto;

@@ -1,6 +1,6 @@
 ﻿using Events.DataBase.Repositories;
-using Events.Application.Repositories;
-using Events.Application;
+using Events.Domain.Repositories;
+using Events.Domain;
 using Microsoft.EntityFrameworkCore;
 
 

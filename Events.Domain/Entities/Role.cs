@@ -1,5 +1,5 @@
 ﻿
-namespace Events.Domain;
+namespace Events.Domain.Entities;
 
 
 public record Role : UniqueNameEntity

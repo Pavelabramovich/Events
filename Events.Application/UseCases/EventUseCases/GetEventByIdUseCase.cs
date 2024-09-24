@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using Events.Application.Dto;
 using Events.Application.Exceptions;
-using System.ComponentModel.DataAnnotations;
+using Events.Domain;
 
 
 namespace Events.Application.UseCases;
 
 
-public class GetEventByIdUseCase(IUnitOfWork unitOfWork, IMapper mapper) : FuncUseCase<int, EventWithoutParticipantsDto?>(unitOfWork, mapper)
+public class GetEventByIdUseCase(IUnitOfWork unitOfWork, IMapper mapper) : FuncUseCase<int, EventWithoutParticipantsDto>(unitOfWork, mapper)
 {
     private const string NotFoundErrorMessage = "Not found event with this id.";
 

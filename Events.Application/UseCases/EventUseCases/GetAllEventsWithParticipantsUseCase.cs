@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Events.Domain;
 using Events.Application.Dto;
 
 

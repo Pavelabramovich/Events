@@ -2,6 +2,7 @@
 using Events.Application.Dto;
 using Events.Application.Exceptions;
 using Events.Domain;
+using Events.Domain.Entities;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc.Diagnostics;

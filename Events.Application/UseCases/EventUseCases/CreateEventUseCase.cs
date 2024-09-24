@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Events.Application.Dto;
 using Events.Application.Exceptions;
+using Events.Domain.Entities;
 using Events.Domain;
 using FluentValidation;
 using FluentValidation.Results;
@@ -54,4 +55,3 @@ public class CreateEventUseCase : ActionUseCase<EventCreatingDto>
             throw new DataSavingException();
     }
 }
-

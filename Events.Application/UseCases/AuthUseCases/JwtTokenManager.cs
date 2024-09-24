@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-using DomainClaim = Events.Domain.Claim;
+using DomainClaim = Events.Domain.Entities.Claim;
 using SystemClaim = System.Security.Claims.Claim;
 
 
@@ -25,18 +25,18 @@ internal class JwtTokenManager
     }
 
 
-    public Tokens? GenerateToken(int userId, params SystemClaim[] additionalClaims)
+    public TokensDto? GenerateToken(int userId, params SystemClaim[] additionalClaims)
     {
         return GenerateJWTTokens(userId, additionalClaims);
     }
 
-    public Tokens? GenerateRefreshToken(int userId, params SystemClaim[] additionalClaims)
+    public TokensDto? GenerateRefreshToken(int userId, params SystemClaim[] additionalClaims)
     {
         return GenerateJWTTokens(userId, additionalClaims);
     }
 
 
-    public Tokens? GenerateJWTTokens(int userId, params SystemClaim[] additionalClaims)
+    public TokensDto? GenerateJWTTokens(int userId, params SystemClaim[] additionalClaims)
     {
         try
         {
@@ -56,7 +56,7 @@ internal class JwtTokenManager
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var refreshToken = GenerateRefreshToken();
 
-            return new Tokens() { AccessToken = tokenHandler.WriteToken(token), RefreshToken = refreshToken };
+            return new TokensDto() { AccessToken = tokenHandler.WriteToken(token), RefreshToken = refreshToken };
         }
         catch (Exception exception)
         {

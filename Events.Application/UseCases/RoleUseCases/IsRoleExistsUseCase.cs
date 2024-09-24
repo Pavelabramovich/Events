@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Events.Domain;
 
 
 namespace Events.Application.UseCases;
