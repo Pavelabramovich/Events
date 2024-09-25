@@ -22,7 +22,6 @@ public class UpdateEventUseCase : ActionUseCase<EventWithoutParticipantsDto>
     }
 
 
-
     public override void Execute(EventWithoutParticipantsDto eventDto)
     {
         if (_validator.Validate(eventDto) is ValidationResult { IsValid: false } result)
@@ -32,14 +31,12 @@ public class UpdateEventUseCase : ActionUseCase<EventWithoutParticipantsDto>
         }
 
         var @event = _unitOfWork.EventRepository.FindById(eventDto.Id)
-            ?? throw new EntityNotFoundException("Event with this id not found");
+            ?? throw new EntityNotFoundException(eventDto.Id, $"Event with id = {eventDto.Id} not found");
 
         Event eventToReplace = _mapper.Map(eventDto, @event);
 
         _unitOfWork.EventRepository.Update(eventToReplace);
-
-        if (!_unitOfWork.SaveChanges())
-            throw new DataSavingException();
+        _unitOfWork.SaveChanges();
     }
 
     public override async Task ExecuteAsync(EventWithoutParticipantsDto eventDto, CancellationToken cancellationToken = default)
@@ -51,13 +48,11 @@ public class UpdateEventUseCase : ActionUseCase<EventWithoutParticipantsDto>
         }
 
         var @event = await _unitOfWork.EventRepository.FindByIdAsync(eventDto.Id, cancellationToken)
-            ?? throw new EntityNotFoundException("Event with this id not found");
+            ?? throw new EntityNotFoundException(eventDto.Id, $"Event with id = {eventDto.Id} not found");
 
         Event eventToReplace = _mapper.Map(eventDto, @event);
 
         _unitOfWork.EventRepository.Update(eventToReplace);
-
-        if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new DataSavingException();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

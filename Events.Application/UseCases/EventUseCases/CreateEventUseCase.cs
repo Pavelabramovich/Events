@@ -31,12 +31,13 @@ public class CreateEventUseCase : ActionUseCase<EventCreatingDto>
             throw new ValidationException(error.ErrorMessage);
         }
 
+        if (_unitOfWork.EventRepository.GetWhere(e => e.Name == eventDto.Name).Any())
+            throw new DuplicatedIdentifierException(eventDto.Name, $"Event with name = {eventDto.Name} already exists.");
+
         var @event = _mapper.Map<Event>(eventDto);
 
         _unitOfWork.EventRepository.Add(@event);
-
-        if (!_unitOfWork.SaveChanges())
-            throw new DataSavingException();
+        _unitOfWork.SaveChanges();
     }
 
     public override async Task ExecuteAsync(EventCreatingDto eventDto, CancellationToken cancellationToken = default)
@@ -47,11 +48,12 @@ public class CreateEventUseCase : ActionUseCase<EventCreatingDto>
             throw new ValidationException(error.ErrorMessage);
         }
 
+        if(await _unitOfWork.EventRepository.GetWhereAsync(e => e.Name == eventDto.Name, cancellationToken).AnyAsync(cancellationToken))
+            throw new DuplicatedIdentifierException(eventDto.Name, $"Event with name = {eventDto.Name} already exists.");
+
         var @event = _mapper.Map<Event>(eventDto);
 
         _unitOfWork.EventRepository.Add(@event);
-
-        if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new DataSavingException();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

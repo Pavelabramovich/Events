@@ -19,7 +19,7 @@ internal class RoleRepository : Repository<Role>, IRoleRepository
         return Set.Where(r => r.Users.Any(u => u.Id == userId)).ToList();
     }
 
-    public async IAsyncEnumerable<Role> GetUserRolesAsync(int userId,[EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<Role> GetUserRolesAsync(int userId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         await foreach (var role in Set.Where(r => r.Users.Any(u => u.Id == userId)).AsAsyncEnumerable().WithCancellation(cancellationToken))
         {

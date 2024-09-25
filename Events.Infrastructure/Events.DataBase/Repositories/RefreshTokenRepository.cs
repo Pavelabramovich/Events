@@ -31,9 +31,6 @@ internal class RefreshTokenRepository : Repository<RefreshToken>, IRefreshTokenR
 
     public void DeleteUserRefreshToken(int userId, string refreshToken)
     {
-        var token = Set.AsNoTracking().FirstOrDefault(t => t.UserId == userId && t.Value == refreshToken);
-
-        if (token is not null)
-            Set.Remove(token);
+        Set.Select(t => t.UserId == userId && t.Value == refreshToken).ExecuteDelete();
     }
 }

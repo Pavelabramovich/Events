@@ -63,12 +63,7 @@ public class UsersController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<UserWithoutParticipantsDto>> GetUser(int id)
     {
-        var user = await _getByIdUseCase.ExecuteAsync(id);
-
-        if (user is null)
-            return NotFound();
-
-        return user;
+        return await _getByIdUseCase.ExecuteAsync(id);
     }
 
     [HttpGet("page/{pageNum:int}-of-{pageSize:int}")]
@@ -82,95 +77,40 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<ActionResult<UserWithParticipantsDto>> PostUser(UserCreatingDto userDto)
     {
-        try 
-        { 
-            await _createUseCase.ExecuteAsync(userDto);
-            var newUser = _getByLoginUseCase.Execute(userDto.Login)!;
+        await _createUseCase.ExecuteAsync(userDto);
+        var newUser = _getByLoginUseCase.Execute(userDto.Login)!;
 
-            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
+        return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
     }
 
     [HttpPut]
     [Authorize]
     public async Task<IActionResult> PutUser(UserWithoutParticipantsDto userDto)
-    {
-        try
-        {
-            await _updateUseCase.ExecuteAsync(userDto);
-            return NoContent();
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-        catch (EntityNotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
+    {   
+        await _updateUseCase.ExecuteAsync(userDto);
+        return NoContent();
     }
 
     [HttpDelete("{id:int}")]
     [Authorize("Admin")]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        try
-        {
-            await _removeUseCase.ExecuteAsync(id);
-            return NoContent();
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
+        await _removeUseCase.ExecuteAsync(id);
+        return NoContent();
     }
 
 
     [HttpPost("authenticate-user")]
     public async Task<IActionResult> AuthenticateAsync(UserLoginDto userLoginDto)
-    {
-        try
-        {
-            var newTokens = await _authenticateUseCase.ExecuteAsync(userLoginDto);
-            return Ok(newTokens);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Unauthorized();
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
+    {   
+        var newTokens = await _authenticateUseCase.ExecuteAsync(userLoginDto);
+        return Ok(newTokens);
     }
 
     [HttpPost("refresh-token")]
     public async Task<IActionResult> Refresh(TokensDto tokens)
     {
-        try
-        {
-            var newTokens = await _refreshUseCase.ExecuteAsync(tokens);
-            return Ok(newTokens);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Unauthorized();
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
+        var newTokens = await _refreshUseCase.ExecuteAsync(tokens);
+        return Ok(newTokens);
     }
 }

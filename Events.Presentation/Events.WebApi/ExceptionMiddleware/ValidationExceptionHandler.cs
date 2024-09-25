@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Diagnostics;
 
 
 namespace Events.WebApi.ExceptionMiddleware;
@@ -12,7 +12,7 @@ public class ValidationExceptionHandler : IExceptionHandler
         if (exception is ValidationException validationException)
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsJsonAsync(validationException.ValidationResult, cancellationToken);
+            await context.Response.WriteAsJsonAsync(validationException.Message, cancellationToken);
 
             return true;
         }

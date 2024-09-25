@@ -23,7 +23,6 @@ public class UpdateUserUseCase : ActionUseCase<UserWithoutParticipantsDto>
     }
 
 
-
     public override void Execute(UserWithoutParticipantsDto userDto)
     {
         if (_validator.Validate(userDto) is ValidationResult { IsValid: false } result)
@@ -33,14 +32,12 @@ public class UpdateUserUseCase : ActionUseCase<UserWithoutParticipantsDto>
         }
 
         var user = _unitOfWork.UserRepository.FindById(userDto.Id)
-            ?? throw new EntityNotFoundException("User with this id not found");
+            ?? throw new EntityNotFoundException(userDto.Id, $"User with id = {userDto.Id} not found");
 
         User userToReplace = _mapper.Map(userDto, user);
 
         _unitOfWork.UserRepository.Update(userToReplace);
-
-        if (!_unitOfWork.SaveChanges())
-            throw new DataSavingException();
+        _unitOfWork.SaveChanges();
     }
 
     public override async Task ExecuteAsync(UserWithoutParticipantsDto userDto, CancellationToken cancellationToken = default)
@@ -52,13 +49,11 @@ public class UpdateUserUseCase : ActionUseCase<UserWithoutParticipantsDto>
         }
 
         var user = await _unitOfWork.UserRepository.FindByIdAsync(userDto.Id, cancellationToken)
-            ?? throw new EntityNotFoundException("User with this id not found");
+            ?? throw new EntityNotFoundException(userDto.Id, $"User with id = {userDto.Id} not found");
 
         var userToReplace = _mapper.Map(userDto, user);
 
         _unitOfWork.UserRepository.Update(userToReplace);
-
-        if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new DataSavingException();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

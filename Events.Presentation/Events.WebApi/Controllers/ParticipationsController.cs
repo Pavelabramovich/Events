@@ -71,19 +71,7 @@ public class ParticipationsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> PostEventParticipant(int eventId, int userId)
     {
-        try
-        {
-            await _updatePaticipationUseCase.ExecuteAsync(eventId, userId);
-        }
-        catch (EntityNotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
-
+        await _updatePaticipationUseCase.ExecuteAsync(eventId, userId);
         return NoContent();
     }
 
@@ -91,19 +79,7 @@ public class ParticipationsController : ControllerBase
     [Authorize("Admin")]
     public async Task<IActionResult> DeleteEventParticipant(int eventId, int userId)
     {
-        try
-        {
-            await _removeParticipationUseCase.ExecuteAsync(eventId, userId);
-        }
-        catch (EntityNotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
-
+        await _removeParticipationUseCase.ExecuteAsync(eventId, userId);
         return NoContent();
     }
 }

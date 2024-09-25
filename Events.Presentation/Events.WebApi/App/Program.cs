@@ -35,6 +35,8 @@ builder.AddServices();
 
 var app = builder.Build();
 
+//app.UseExceptionHandler();
+
 
 if (app.Environment.IsDevelopment())
 {
@@ -44,11 +46,25 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseExceptionHandler();
 
 app.UseRouting();
 
-app.UseAuthentication(); // add before UseAuthorization() 
-app.UseAuthorization();
+app.UseAuthentication().UseAuthorization();
+
+//app.Use(async (context, next) =>
+//{
+//    try
+//    {
+//        await next(context);
+//    }
+//    catch (Exception exception)
+//    {
+//        context.Response.StatusCode = 500;
+//    }
+//});
+
+
 
 app.MapControllers();
 

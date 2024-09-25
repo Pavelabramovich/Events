@@ -5,6 +5,7 @@ using Events.Domain;
 using Events.DataBase.Repositories;
 using FluentAssertions.Execution;
 using Events.Domain.Entities;
+using Events.Domain.Enums;
 
 
 namespace Events.Tests.RepositoriesTests;

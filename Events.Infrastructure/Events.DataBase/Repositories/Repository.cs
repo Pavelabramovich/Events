@@ -1,6 +1,7 @@
 ﻿using Events.Domain.Entities;
 using Events.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
 
@@ -28,6 +29,22 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
     public async IAsyncEnumerable<TEntity> GetAllAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         await foreach (var entity in Set.AsNoTracking().AsAsyncEnumerable().WithCancellation(cancellationToken))
+        {
+            yield return entity;
+        }
+    }
+
+
+    public IEnumerable<TEntity> GetWhere(Expression<Func<TEntity, bool>> filter)
+    {
+        return Set.AsNoTracking().Where(filter).ToArray();
+    }
+
+    public async IAsyncEnumerable<TEntity> GetWhereAsync(
+        Expression<Func<TEntity, bool>> filter, 
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await foreach (var entity in Set.AsNoTracking().Where(filter).AsAsyncEnumerable().WithCancellation(cancellationToken))
         {
             yield return entity;
         }
@@ -66,11 +83,8 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
 
     public void Update(TEntity entity)
     {
-        ArgumentNullException
-            .ThrowIfNull(entity, nameof(entity));
-
-        var existedEntity = Set.FirstOrDefault(e => e.Id == entity.Id)
-            ?? throw new InvalidOperationException("Entity not found.");
+        var existedEntity = Set.FirstOrDefault(e => e.Id == entity.Id)!;
+      //      ?? throw new InvalidOperationException("Entity not found.");
 
         _context.Entry(existedEntity).CurrentValues.SetValues(entity);
     }

@@ -42,10 +42,8 @@ public class RefreshUseCase : FuncUseCase<TokensDto, TokensDto>
         if (savedRefreshToken?.Value != tokens.RefreshToken)
             throw new UnauthorizedAccessException();
 
-        var newTokens = _jwtTokenManager.GenerateRefreshToken(userId, claims.ToArray());
-
-        if (newTokens is null)
-            throw new UnauthorizedAccessException();
+        var newTokens = _jwtTokenManager.GenerateRefreshToken(userId, claims.ToArray()) 
+            ?? throw new UnauthorizedAccessException();
 
         var newRefreshToken = new RefreshToken
         {
@@ -56,8 +54,7 @@ public class RefreshUseCase : FuncUseCase<TokensDto, TokensDto>
 
         _unitOfWork.RefreshTokenRepository.UpsertUserRefreshToken(newRefreshToken);
 
-        if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new DataSavingException();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return newTokens;
     }

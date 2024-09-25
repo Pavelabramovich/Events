@@ -1,5 +1,5 @@
 ﻿
-namespace Events.Domain.Entities;
+namespace Events.Domain.Enums;
 
 
 public enum Category

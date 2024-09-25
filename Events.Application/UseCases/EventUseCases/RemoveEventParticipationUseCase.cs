@@ -11,32 +11,26 @@ public class RemoveEventParticipationUseCase(IUnitOfWork unitOfWork, IMapper map
 {
     public override void Execute(int eventId, int userId)
     {
-        try
-        {
-            _unitOfWork.EventRepository.RemoveParticipant(eventId, userId);
-        }
-        catch (ArgumentException exception)
-        {
-            throw new EntityNotFoundException(exception.Message, exception);
-        }
-        
-        if (!_unitOfWork.SaveChanges())
-            throw new DataSavingException();
+        if (_unitOfWork.EventRepository.FindById(eventId) is null)
+            throw new EntityNotFoundException(eventId, $"Could not find event with id = {eventId}");
+
+        if (_unitOfWork.UserRepository.FindById(userId) is null)
+            throw new EntityNotFoundException(eventId, $"Could not find user with id = {userId}");
+
+        _unitOfWork.EventRepository.RemoveParticipant(eventId, userId);
+        _unitOfWork.SaveChanges();
     }
 
     public override async Task ExecuteAsync(int eventId, int userId, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            await _unitOfWork.EventRepository.RemoveParticipantAsync(eventId, userId, cancellationToken);
-        }
-        catch (ArgumentException exception)
-        {
-            throw new EntityNotFoundException(exception.Message, exception);
-        }
+        if (await _unitOfWork.EventRepository.FindByIdAsync(eventId, cancellationToken) is null)
+            throw new EntityNotFoundException(eventId, $"Could not find event with id = {eventId}");
 
-        if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new DataSavingException();
+        if (await _unitOfWork.UserRepository.FindByIdAsync(userId, cancellationToken) is null)
+            throw new EntityNotFoundException(eventId, $"Could not find user with id = {userId}");
+
+        await _unitOfWork.EventRepository.RemoveParticipantAsync(eventId, userId, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
 

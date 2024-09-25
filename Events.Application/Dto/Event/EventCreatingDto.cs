@@ -1,4 +1,5 @@
 ﻿using Events.Domain.Entities;
+using Events.Domain.Enums;
 
 
 namespace Events.Application.Dto;

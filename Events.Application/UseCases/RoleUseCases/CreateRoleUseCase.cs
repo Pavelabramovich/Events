@@ -12,17 +12,19 @@ public class CreateRoleUseCase(IUnitOfWork unitOfWork, IMapper mapper) : ActionU
 {
     public override void Execute(string name)
     {
-        _unitOfWork.RoleRepository.Add(new Role { Name = name });
+        if (_unitOfWork.RoleRepository.GetWhere(r => r.Name == name).Any())
+            throw new DuplicatedIdentifierException(name, $"Role with name = {name} already exists.");
 
-        if (!_unitOfWork.SaveChanges())
-            throw new DataSavingException();
+        _unitOfWork.RoleRepository.Add(new Role { Name = name });
+        _unitOfWork.SaveChanges();
     }
 
     public override async Task ExecuteAsync(string name, CancellationToken cancellationToken = default)
     {
-        _unitOfWork.RoleRepository.Add(new Role { Name = name });
+        if (await _unitOfWork.RoleRepository.GetWhereAsync(r => r.Name == name, cancellationToken).AnyAsync(cancellationToken))
+            throw new DuplicatedIdentifierException(name, $"Role with name = {name} already exists.");
 
-        if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new DataSavingException();
+        _unitOfWork.RoleRepository.Add(new Role { Name = name });
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

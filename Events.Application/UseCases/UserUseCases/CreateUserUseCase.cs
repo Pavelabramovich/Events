@@ -31,12 +31,13 @@ public class CreateUserUseCase : ActionUseCase<UserCreatingDto>
             throw new ValidationException(error.ErrorMessage);
         }
 
+        if (_unitOfWork.UserRepository.GetWhere(u => u.Login == userDto.Login).Any())
+            throw new DuplicatedIdentifierException(userDto.Login, $"User with login = {userDto.Login} already exists.");
+
         User user = _mapper.Map<User>(userDto);
 
         _unitOfWork.UserRepository.Add(user);
-
-        if (!_unitOfWork.SaveChanges())
-            throw new DataSavingException();
+        _unitOfWork.SaveChanges();
     }
 
     public override async Task ExecuteAsync(UserCreatingDto userDto, CancellationToken cancellationToken = default)
@@ -47,11 +48,12 @@ public class CreateUserUseCase : ActionUseCase<UserCreatingDto>
             throw new ValidationException(error.ErrorMessage);
         }
 
+        if (await _unitOfWork.UserRepository.GetWhereAsync(u => u.Login == userDto.Login, cancellationToken).AnyAsync(cancellationToken))
+            throw new DuplicatedIdentifierException(userDto.Login, $"User with login = {userDto.Login} already exists.");
+
         User user = _mapper.Map<User>(userDto);
 
         _unitOfWork.UserRepository.Add(user);
-
-        if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new DataSavingException();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

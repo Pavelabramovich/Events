@@ -45,7 +45,6 @@ public class EventsController : ControllerBase
         _removeUseCase = removeUseCase;
     }
 
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EventWithoutParticipantsDto>>> GetEvents()
     {
@@ -56,14 +55,7 @@ public class EventsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<EventWithoutParticipantsDto>> GetEvent(int id)
     {
-        try
-        {
-            return await _getByIdUseCase.ExecuteAsync(id);
-        }
-        catch (EntityNotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
+        return await _getByIdUseCase.ExecuteAsync(id);
     }
 
     [HttpGet("page/{pageNum:int}-of-{pageSize:int}")]
@@ -77,19 +69,7 @@ public class EventsController : ControllerBase
     [Authorize]
     public async Task<ActionResult<Event>> PostEvent(EventCreatingDto eventDto)
     {
-        try
-        {
-            await _createUseCase.ExecuteAsync(eventDto);
-        }
-        catch (ValidationException validationException)
-        {
-            return BadRequest(validationException.Message);
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
-
+        await _createUseCase.ExecuteAsync(eventDto);
         var newEvent = await _getByNameUseCase.ExecuteAsync(eventDto.Name);
 
         return CreatedAtAction(nameof(GetEvent), new { id = newEvent!.Id }, newEvent);
@@ -99,23 +79,7 @@ public class EventsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> PutEvent(EventWithoutParticipantsDto eventDto)
     {
-        try
-        {
-            await _updateUseCase.ExecuteAsync(eventDto); 
-        }
-        catch (ValidationException validationException)
-        {
-            return BadRequest(validationException.Message);
-        }
-        catch (EntityNotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
-
+        await _updateUseCase.ExecuteAsync(eventDto); 
         return NoContent();
     }
 
@@ -123,19 +87,7 @@ public class EventsController : ControllerBase
     [Authorize("Admin")]
     public async Task<IActionResult> DeleteEvent(int id)
     {
-        try
-        {
-            await _removeUseCase.ExecuteAsync(id);
-        }
-        catch (EntityNotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
-
+        await _removeUseCase.ExecuteAsync(id);
         return NoContent();
     }
 }

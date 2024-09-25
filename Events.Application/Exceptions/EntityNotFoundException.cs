@@ -1,24 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
+using System.Collections;
 
 namespace Events.Application.Exceptions;
 
 
 public class EntityNotFoundException : Exception
 {
-    public EntityNotFoundException()
+    public object NonExistentIdentifier { get; init; }
+
+
+    public EntityNotFoundException(object nonExistentId)
         : base()
-    { }
+    {
+        NonExistentIdentifier = nonExistentId;
+        Data[nameof(NonExistentIdentifier)] = NonExistentIdentifier;
+    }
 
-    public EntityNotFoundException(string message)
+    public EntityNotFoundException(object nonExistentId, string message)
         : base(message)
-    { }
+    {
+        NonExistentIdentifier = nonExistentId;
+        Data[nameof(NonExistentIdentifier)] = NonExistentIdentifier;
+    }
 
-    public EntityNotFoundException(string message, Exception innerException)
+    public EntityNotFoundException(object nonExistentId, string message, Exception innerException)
         : base(message, innerException)
-    { }
+    {
+        NonExistentIdentifier = nonExistentId;
+        Data[nameof(NonExistentIdentifier)] = NonExistentIdentifier;
+    }
 }

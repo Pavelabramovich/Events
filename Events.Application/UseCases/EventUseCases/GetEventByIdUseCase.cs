@@ -9,13 +9,11 @@ namespace Events.Application.UseCases;
 
 public class GetEventByIdUseCase(IUnitOfWork unitOfWork, IMapper mapper) : FuncUseCase<int, EventWithoutParticipantsDto>(unitOfWork, mapper)
 {
-    private const string NotFoundErrorMessage = "Not found event with this id.";
-
 
     public override EventWithoutParticipantsDto Execute(int id)
     {
         var @event = _unitOfWork.EventRepository.FindById(id)
-            ?? throw new EntityNotFoundException(NotFoundErrorMessage);
+            ?? throw new EntityNotFoundException(id, $"Event with id = {id} not found.");
 
         return _mapper.Map<EventWithoutParticipantsDto>(@event);
     }
@@ -23,7 +21,7 @@ public class GetEventByIdUseCase(IUnitOfWork unitOfWork, IMapper mapper) : FuncU
     public override async Task<EventWithoutParticipantsDto> ExecuteAsync(int id, CancellationToken cancellationToken = default)
     {
         var @event = await _unitOfWork.EventRepository.FindByIdAsync(id, cancellationToken)
-            ?? throw new EntityNotFoundException(NotFoundErrorMessage);
+            ?? throw new EntityNotFoundException(id, $"Event with id = {id} not found.");
 
         return _mapper.Map<EventWithoutParticipantsDto>(@event);
     }

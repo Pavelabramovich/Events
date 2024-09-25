@@ -2,6 +2,7 @@
 using Events.Application.Exceptions;
 using Events.Domain;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 
 
 namespace Events.Application.UseCases;
@@ -11,21 +12,23 @@ public class RemoveRoleUseCase(IUnitOfWork unitOfWork, IMapper mapper) : ActionU
 {
     public override void Execute(string name)
     {
-        throw new NotImplementedException();
+        var roles = _unitOfWork.RoleRepository.GetAll();
+
+        var role = roles.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+            ?? throw new EntityNotFoundException(name.ToLower(), $"Role with name {name.ToLower()} is not found.");
+
+        _unitOfWork.RoleRepository.Remove(role.Name);
+        _unitOfWork.SaveChanges();
     }
 
     public override async Task ExecuteAsync(string name, CancellationToken cancellationToken = default)
     {
         var roles = await _unitOfWork.RoleRepository.GetAllAsync(cancellationToken).ToArrayAsync(cancellationToken);
-        var role = roles.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-        if (role is null)
-            throw new EntityNotFoundException($"Role with name {name.ToLower()} is not found.");
+        var role = roles.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+            ?? throw new EntityNotFoundException(name.ToLower(), $"Role with name {name.ToLower()} is not found.");
 
         _unitOfWork.RoleRepository.Remove(role.Name);
-
-        if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new DataSavingException();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
-

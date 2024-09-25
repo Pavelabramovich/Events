@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Events.Application.Dto;
+using Events.Application.Exceptions;
 using Events.Domain;
 
 
@@ -8,18 +9,24 @@ namespace Events.Application.UseCases;
 
 public class GetParticipationsByUserIdUseCase(IUnitOfWork unitOfWork, IMapper mapper) : FuncUseCase<int, IEnumerable<ParticipantWithoutUserDto>>(unitOfWork, mapper)
 {
-    public override IEnumerable<ParticipantWithoutUserDto> Execute(int id)
+    public override IEnumerable<ParticipantWithoutUserDto> Execute(int userId)
     {
+        if (_unitOfWork.UserRepository.FindById(userId) is null)
+            throw new EntityNotFoundException(userId, $"User with id = {userId} is not found.");
+
         return _unitOfWork
             .UserRepository
-            .GetUserEvents(id)
+            .GetUserEvents(userId)
             .Select(p => _mapper.Map<ParticipantWithoutUserDto>(p))
             .ToArray();
     }
 
-    public override async Task<IEnumerable<ParticipantWithoutUserDto>> ExecuteAsync(int id, CancellationToken cancellationToken = default)
+    public override async Task<IEnumerable<ParticipantWithoutUserDto>> ExecuteAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var participants = await _unitOfWork.UserRepository.GetUserEventsAsync(id, cancellationToken).ToArrayAsync(cancellationToken);
+        if (await _unitOfWork.UserRepository.FindByIdAsync(userId, cancellationToken) is null)
+            throw new EntityNotFoundException(userId, $"User with id = {userId} is not found.");
+
+        var participants = await _unitOfWork.UserRepository.GetUserEventsAsync(userId, cancellationToken).ToArrayAsync(cancellationToken);
 
         return participants.Select(p => _mapper.Map<ParticipantWithoutUserDto>(p));
     }

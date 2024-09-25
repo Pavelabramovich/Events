@@ -20,7 +20,6 @@ public class RolesController : ControllerBase
     private readonly GetAllRolesUseCase _getAllUseCase;
     private readonly IsRoleExistsUseCase _existsUseCase;
     private readonly CreateRoleUseCase _createUseCase;
-    private readonly UpdateRoleUseCase _updateUseCase;
     private readonly RemoveRoleUseCase _removeUseCase;
 
 
@@ -28,13 +27,11 @@ public class RolesController : ControllerBase
         GetAllRolesUseCase getAllUseCase,
         IsRoleExistsUseCase existsUseCase,
         CreateRoleUseCase createUseCase,
-        UpdateRoleUseCase updateUseCase,
         RemoveRoleUseCase removwUseCase)
     {
         _getAllUseCase = getAllUseCase;
         _existsUseCase = existsUseCase;
         _createUseCase = createUseCase;
-        _updateUseCase = updateUseCase;
         _removeUseCase = removwUseCase;
     }
 
@@ -56,35 +53,9 @@ public class RolesController : ControllerBase
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Post(string name)
-    {
-        try
-        {
-            await _createUseCase.ExecuteAsync(name);
-            return NoContent();
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
-    }
-
-    [HttpPut("rename/{name}")]
-    [Authorize]
-    public async Task<IActionResult> Put(string name, string newName)
-    {
-        try
-        {
-            await _updateUseCase.ExecuteAsync(name, newName);
-            return NoContent();
-        }
-        catch (EntityNotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
+    {       
+        await _createUseCase.ExecuteAsync(name);
+        return NoContent();
     }
 
 
@@ -92,18 +63,7 @@ public class RolesController : ControllerBase
     [Authorize("Admin")]
     public async Task<IActionResult> Delete(string name)
     {
-        try
-        {
-            await _removeUseCase.ExecuteAsync(name);
-            return NoContent();
-        }
-        catch (EntityNotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (DataSavingException)
-        {
-            return BadRequest();
-        }
+        await _removeUseCase.ExecuteAsync(name);
+        return NoContent();
     }
 }

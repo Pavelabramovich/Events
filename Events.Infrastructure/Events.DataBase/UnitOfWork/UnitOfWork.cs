@@ -77,38 +77,14 @@ public class UnitOfWork : IUnitOfWork
     }
 
 
-    public bool SaveChanges()
+    public void SaveChanges()
     {
-        try
-        {
-            _context.SaveChanges(); 
-            return true;
-        }
-        catch (DbUpdateException dbException)
-        {
-            return false;
-        }
-        catch (Exception exception)
-        {
-            return false;
-        }
+        _context.SaveChanges(); 
     }
 
-    public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        try
-        {
-            await _context.SaveChangesAsync(cancellationToken);
-            return true;
-        }
-        catch (DbUpdateException dbException)
-        {
-            return false;
-        }
-        catch (Exception exception)
-        {
-            return false;
-        }
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
 

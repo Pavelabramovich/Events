@@ -30,7 +30,6 @@ public static class AddServicesExtension
         @this.Services.AddScoped<GetAllRolesUseCase>();
         @this.Services.AddScoped<IsRoleExistsUseCase>();
         @this.Services.AddScoped<CreateRoleUseCase>();
-        @this.Services.AddScoped<UpdateRoleUseCase>();
         @this.Services.AddScoped<RemoveRoleUseCase>();
 
         @this.Services.AddScoped<GetAllUsersUseCase>();

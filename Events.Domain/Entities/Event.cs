@@ -1,4 +1,6 @@
-﻿
+﻿using Events.Domain.Enums;
+
+
 namespace Events.Domain.Entities;
 
 

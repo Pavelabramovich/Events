@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Events.Application.Dto;
 using Events.Domain;
-using System.ComponentModel.DataAnnotations;
 
 
 namespace Events.Application.UseCases;

@@ -38,7 +38,8 @@ public class AuthenticateUseCase : FuncUseCase<UserLoginDto, TokensDto>
         if (!isUserValid)
             throw new UnauthorizedAccessException();
 
-        var user = await _unitOfWork.UserRepository.FindByLoginAsync(userLoginDto.Login, cancellationToken);
+        var user = await _unitOfWork.UserRepository.FindByLoginAsync(userLoginDto.Login, cancellationToken)
+            ?? throw new EntityNotFoundException(userLoginDto.Login, "Invalid user login");
 
         var userRoles = await _unitOfWork.RoleRepository.GetUserRolesAsync(user!.Id, cancellationToken).ToArrayAsync(cancellationToken);
         var userClaims = await _unitOfWork.ClaimRepository.GetUserClaimsAsync(user!.Id, cancellationToken).ToArrayAsync(cancellationToken);
@@ -48,10 +49,8 @@ public class AuthenticateUseCase : FuncUseCase<UserLoginDto, TokensDto>
 
         SystemClaim[] claims = [.. claimsFromRoles, .. claimsFromClaims];
 
-        var tokens = _jwtTokenManager.GenerateToken(user.Id, claims);
-
-        if (tokens is null)
-            throw new UnauthorizedAccessException();
+        var tokens = _jwtTokenManager.GenerateToken(user.Id, claims)
+            ?? throw new UnauthorizedAccessException();
 
         var refreshToken = new RefreshToken
         {
@@ -62,9 +61,8 @@ public class AuthenticateUseCase : FuncUseCase<UserLoginDto, TokensDto>
 
         _unitOfWork.RefreshTokenRepository.UpsertUserRefreshToken(refreshToken);
 
-        if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
-            throw new DataSavingException();
-
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
         return tokens;
     }
 }

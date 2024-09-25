@@ -13,6 +13,6 @@ public interface IUnitOfWork : IDisposable
     IClaimRepository ClaimRepository { get; }
     IRefreshTokenRepository RefreshTokenRepository { get; }
 
-    bool SaveChanges();
-    Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default);
+    void SaveChanges();
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
