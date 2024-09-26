@@ -84,17 +84,13 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
     public void Update(TEntity entity)
     {
         var existedEntity = Set.FirstOrDefault(e => e.Id == entity.Id)!;
-      //      ?? throw new InvalidOperationException("Entity not found.");
 
         _context.Entry(existedEntity).CurrentValues.SetValues(entity);
     }
 
     public void Remove(object id)
     {
-        var entity = Set.Find(id);
-
-        if (entity is not null)
-            Set.Remove(entity);
+        Set.Remove(Set.Find(id)!);
     }
 
     public int Count()

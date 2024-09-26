@@ -61,7 +61,6 @@ internal class EventRepository : Repository<Event>, IEventRepository
     public void AddParticipant(int eventId, int userId)
     {
         var @event = Set.FirstOrDefault(e => e.Id == eventId)!;
-           // ?? throw new ArgumentException("Event not found");
 
         @event.Participants.Add(new Participation() { UserId = userId, RegistrationTime = DateTime.UtcNow });
     }
@@ -69,7 +68,6 @@ internal class EventRepository : Repository<Event>, IEventRepository
     public async Task AddParticipantAsync(int eventId, int userId, CancellationToken cancellationToken = default)
     {
         var @event = await Set.FirstOrDefaultAsync(e => e.Id == eventId, cancellationToken);
-           // ?? throw new ArgumentException("Event not found");
 
         @event!.Participants.Add(new Participation { UserId = userId, RegistrationTime = DateTime.UtcNow });
     }
@@ -78,10 +76,8 @@ internal class EventRepository : Repository<Event>, IEventRepository
     public void RemoveParticipant(int eventId, int userId)
     {
         var @event = Set.Include(e => e.Participants).FirstOrDefault(e => e.Id == eventId)!;
-         //   ?? throw new ArgumentException("Event not found");
 
         var participation = @event.Participants.FirstOrDefault(p => p.UserId == userId)!;
-           // ?? throw new ArgumentException("User not fount on this event");
 
         @event.Participants.Remove(participation);
     }
@@ -89,10 +85,8 @@ internal class EventRepository : Repository<Event>, IEventRepository
     public async Task RemoveParticipantAsync(int eventId, int userId, CancellationToken cancellationToken = default)
     {
         var @event = await Set.Include(e => e.Participants).FirstOrDefaultAsync(e => e.Id == eventId, cancellationToken);
-        //  ?? throw new ArgumentException("Event not found");
 
         var participation = @event!.Participants.FirstOrDefault(p => p.UserId == userId)!;
-           // ?? throw new ArgumentException("User not fount on this event");
 
         @event.Participants.Remove(participation);
     }
@@ -100,7 +94,6 @@ internal class EventRepository : Repository<Event>, IEventRepository
     public int ParticipantsCount(int eventId)
     {
         var @event = Set.Include(e => e.Participants).FirstOrDefault(e => e.Id == eventId)!;
-          //  ?? throw new ArgumentException("Event not found");
 
         return @event.Participants.Count; 
     }
@@ -108,7 +101,6 @@ internal class EventRepository : Repository<Event>, IEventRepository
     public async Task<int> ParticipantsCountAsync(int eventId, CancellationToken cancellationToken = default)
     {
         var @event = await Set.Include(e => e.Participants).FirstOrDefaultAsync(e => e.Id == eventId, cancellationToken);
-          // ?? throw new ArgumentException("Event not found");
 
         return @event!.Participants.Count;
     }
